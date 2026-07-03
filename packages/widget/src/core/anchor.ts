@@ -2,9 +2,19 @@ import type { Anchor, RegionRect } from "./api";
 
 // Auto-generated-looking ids are unstable across builds (PRD §5.3)
 const UNSTABLE_ID = /\d{3,}|^:|^radix-|^headlessui-/;
+// Framework mount nodes: stable but useless as anchors — an offset inside a
+// whole-page container reflows almost as badly as page percentages.
+const CONTAINER_ID = /^(root|app|__next|__nuxt|app-root)$/i;
 const TESTID_ATTRS = ["data-testid", "data-test", "data-cy"];
 const MAX_ANCESTORS = 5;
-const MAX_PATH_DEPTH = 5;
+const MAX_PATH_DEPTH = 10;
+
+/** Covers most of the viewport → too coarse to anchor a pin to directly. */
+function isContainerLike(el: Element): boolean {
+  if (el.id && CONTAINER_ID.test(el.id)) return true;
+  const rect = el.getBoundingClientRect();
+  return rect.width > innerWidth * 0.85 && rect.height > innerHeight * 0.85;
+}
 
 function cssEscape(v: string): string {
   return CSS?.escape ? CSS.escape(v) : v.replace(/[^\w-]/g, "\\$&");
@@ -50,53 +60,71 @@ function nthOfType(el: Element): number {
 }
 
 /**
- * Semantic path: tag + nth-of-type segments, max depth 5, rooted at body or
- * the nearest stable-id ancestor. Never class names (PRD §5.3).
+ * Semantic path: tag + nth-of-type segments from the target up to the
+ * nearest stable-selector ancestor (container ids like #root are fine as
+ * path ROOTS — "#root > … > button" is precise even though #root alone
+ * isn't). Never class names (PRD §5.3).
  */
 function semanticPath(el: Element): string | null {
   const segments: string[] = [];
   let node: Element | null = el;
 
   for (let depth = 0; node && depth < MAX_PATH_DEPTH; depth++) {
-    if (node === document.body || node === document.documentElement) break;
-
-    const parent: Element | null = node.parentElement;
-    const stable = selectorFor(node);
-    if (stable && depth > 0) {
-      segments.unshift(stable.selector);
-      const s = segments.join(" > ");
+    if (node === document.body || node === document.documentElement) {
+      const s = "body > " + segments.join(" > ");
       return isUnique(s) ? s : null;
     }
 
-    segments.unshift(`${node.tagName.toLowerCase()}:nth-of-type(${nthOfType(node)})`);
-    node = parent;
-  }
+    if (depth > 0) {
+      const stable = selectorFor(node);
+      if (stable) {
+        const s = `${stable.selector} > ${segments.join(" > ")}`;
+        if (isUnique(s)) return s;
+        // ambiguous under this root — keep climbing with plain segments
+      }
+    }
 
-  if (!node || node === document.body) {
-    const s = "body > " + segments.join(" > ");
-    return isUnique(s) ? s : null;
+    segments.unshift(
+      `${node.tagName.toLowerCase()}:nth-of-type(${nthOfType(node)})`
+    );
+    node = node.parentElement;
   }
   return null;
 }
 
 /**
- * Selector generation at pin time (PRD §5.3): walk up from the clicked
- * element looking for the most stable anchor.
+ * Selector generation at pin time (PRD §5.3), most precise first:
+ * 1. the clicked element's own stable hook (id / testid / aria-label)
+ * 2. semantic path from the element to the nearest stable ancestor —
+ *    keeps the anchor on the exact element even in deep, hook-less DOMs
+ * 3. a stable ancestor + offset within it (coarse, reflows inside)
+ * 4. nothing — page_pct fallback
+ * Container-like elements (framework mounts, near-viewport-size boxes)
+ * are rejected as direct anchors at every step.
  */
 export function generateSelector(target: Element): {
   el: Element;
   selector: string | null;
   confidence: Anchor["selector_confidence"];
 } {
-  let node: Element | null = target;
-  for (let i = 0; node && i < MAX_ANCESTORS; i++) {
-    const found = selectorFor(node);
-    if (found) return { el: node, selector: found.selector, confidence: found.confidence };
-    node = node.parentElement;
+  if (!isContainerLike(target)) {
+    const own = selectorFor(target);
+    if (own)
+      return { el: target, selector: own.selector, confidence: own.confidence };
+
+    const path = semanticPath(target);
+    if (path) return { el: target, selector: path, confidence: "medium" };
   }
 
-  const path = semanticPath(target);
-  if (path) return { el: target, selector: path, confidence: "low" };
+  let node: Element | null = target.parentElement;
+  for (let i = 0; node && i < MAX_ANCESTORS; i++) {
+    if (!isContainerLike(node)) {
+      const found = selectorFor(node);
+      if (found)
+        return { el: node, selector: found.selector, confidence: "low" };
+    }
+    node = node.parentElement;
+  }
 
   return { el: target, selector: null, confidence: "none" };
 }
