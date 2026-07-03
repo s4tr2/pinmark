@@ -284,6 +284,55 @@ button:focus-visible {
   text-decoration: none;
 }
 
+/* ---- landing (brand register: display scale, same tokens) ---- */
+
+.landing .hero-title {
+  font-size: 2.25rem;
+  font-weight: 700;
+  letter-spacing: -0.022em;
+  line-height: 1.15;
+  margin: 3.5rem 0 1rem;
+  max-width: 16ch;
+}
+
+.landing .hero-sub {
+  font-size: 1.0625rem;
+  line-height: 1.6;
+  color: var(--muted);
+  max-width: 52ch;
+  margin: 0 0 1.75rem;
+}
+
+.try-callout {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.9375rem;
+  border: 1px solid var(--border);
+  background: var(--bg-subtle);
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin: 1.5rem 0;
+}
+
+.try-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: oklch(0.72 0.19 145);
+  flex-shrink: 0;
+}
+
+.landing .steps li {
+  margin: 0.875rem 0;
+}
+
+.platforms {
+  font-size: 0.9375rem;
+  line-height: 1.9;
+  letter-spacing: 0.01em;
+}
+
 @media (prefers-reduced-motion: reduce) {
   * {
     transition: none !important;

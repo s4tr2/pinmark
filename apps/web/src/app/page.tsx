@@ -1,21 +1,95 @@
 import Link from "next/link";
-import { BRAND_NAME } from "@/lib/config";
+import Script from "next/script";
+import { BRAND_NAME, CDN_URL, snippetFor } from "@/lib/config";
+
+const DEMO_KEY = process.env.NEXT_PUBLIC_DEMO_KEY;
 
 export default function LandingPage() {
   return (
-    <main>
-      <h1>{BRAND_NAME}</h1>
-      <p>
-        Figma-style commenting for any coded prototype. Paste one script tag
-        into a deployed prototype and anyone with the link can pin comments
-        directly on the UI — no account, no install.
+    <main className="landing">
+      <nav className="crumbs" style={{ display: "flex", justifyContent: "space-between" }}>
+        <span>{BRAND_NAME}</span>
+        <span>
+          <Link href="/docs">Install guide</Link> ·{" "}
+          <Link href="/login">Sign in</Link>
+        </span>
+      </nav>
+
+      <h1 className="hero-title">
+        Pin feedback directly on your prototype.
+      </h1>
+      <p className="hero-sub">
+        Figma-style comments for anything you can deploy: Vercel, Lovable,
+        Replit, anywhere. One script tag for you; a link and a first name for
+        your reviewers. No accounts, no installs.
       </p>
+
+      {DEMO_KEY && (
+        <p className="try-callout">
+          <span className="try-dot" aria-hidden />
+          Live on this page. Press <kbd>C</kbd> and click anywhere, or drag
+          to comment on an area.
+        </p>
+      )}
+
+      <code className="snippet">{snippetFor("pk_live_YOUR_KEY")}</code>
       <p>
-        <Link href="/login">Sign in</Link> ·{" "}
-        <Link href="/dashboard">Dashboard</Link> ·{" "}
-        <Link href="/docs">Install guide</Link>
+        <Link href="/login">
+          <button type="button">Get your snippet</button>
+        </Link>
       </p>
-      <p className="muted">Landing page design comes later (PRD §7).</p>
+
+      <section className="doc-section">
+        <h2>How it works</h2>
+        <ol className="steps">
+          <li>
+            <strong>Create a project.</strong> Name it, list the domains your
+            prototype lives on.
+          </li>
+          <li>
+            <strong>Paste the snippet.</strong> One script tag in the{" "}
+            <code>&lt;head&gt;</code>. Redeploy.
+          </li>
+          <li>
+            <strong>Share the link you already share.</strong> Reviewers pin
+            comments on the UI itself; you reply, resolve, and triage from
+            one dashboard.
+          </li>
+        </ol>
+      </section>
+
+      <section className="doc-section">
+        <h2>Works where your prototype works</h2>
+        <p className="platforms">
+          Vercel · Lovable · Replit · Webflow · Framer · Netlify · Bolt · v0
+          · GitHub Pages · your own server
+        </p>
+        <p className="muted">
+          If it serves HTML, it works. <Link href="/docs">Platform guides</Link>
+        </p>
+      </section>
+
+      <section className="doc-section">
+        <h2>Reviewers stay anonymous</h2>
+        <p>
+          No reviewer accounts, ever. A guest is a first name and a random
+          token in their own browser: no emails, no cookies, no tracking.
+          Prefer a closed loop? Switch a project to review-link mode and the
+          widget is invisible without your secret link.
+        </p>
+      </section>
+
+      <footer className="muted" style={{ marginTop: "4rem", fontSize: "0.8125rem" }}>
+        {BRAND_NAME} — comments for coded prototypes
+      </footer>
+
+      {DEMO_KEY && (
+        <Script
+          src={`${CDN_URL}/w.js`}
+          data-pinmark={DEMO_KEY}
+          strategy="afterInteractive"
+        />
+      )}
     </main>
   );
 }
