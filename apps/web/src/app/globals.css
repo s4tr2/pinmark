@@ -1,20 +1,25 @@
 :root {
-  --fg: #111;
-  --bg: #fff;
-  --muted: #666;
-  --border: #e2e2e2;
-  --accent: #2563eb;
-  --danger: #dc2626;
+  /* neutrals tinted toward the accent hue (262) — never pure gray */
+  --bg: oklch(0.99 0.002 262);
+  --bg-subtle: oklch(0.965 0.004 262);
+  --fg: oklch(0.22 0.01 262);
+  --muted: oklch(0.5 0.015 262);
+  --border: oklch(0.92 0.006 262);
+  --border-strong: oklch(0.85 0.008 262);
+  --accent: oklch(0.5 0.17 262);
+  --danger: oklch(0.55 0.19 25);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --fg: #eee;
-    --bg: #111;
-    --muted: #999;
-    --border: #333;
-    --accent: #60a5fa;
-    --danger: #f87171;
+    --bg: oklch(0.19 0.008 262);
+    --bg-subtle: oklch(0.23 0.01 262);
+    --fg: oklch(0.93 0.005 262);
+    --muted: oklch(0.66 0.012 262);
+    --border: oklch(0.3 0.01 262);
+    --border-strong: oklch(0.38 0.012 262);
+    --accent: oklch(0.74 0.13 262);
+    --danger: oklch(0.7 0.16 25);
   }
 }
 
@@ -24,82 +29,51 @@
 
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-    Helvetica, Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui,
+    Roboto, Helvetica, Arial, sans-serif;
+  font-size: 0.9375rem;
   color: var(--fg);
   background: var(--bg);
-  line-height: 1.5;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: oklch(0.5 0.17 262 / 0.2);
 }
 
 main {
-  max-width: 720px;
+  max-width: 680px;
   margin: 0 auto;
-  padding: 48px 24px;
+  padding: 56px 24px 96px;
 }
+
+/* ---- type scale (1.2 ratio, product register) ---- */
 
 h1 {
-  font-size: 1.5rem;
+  font-size: 1.375rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+  margin: 0 0 0.75rem;
 }
 
-a {
-  color: var(--accent);
+h2 {
+  font-size: 1.0625rem;
+  font-weight: 600;
+  letter-spacing: -0.006em;
+  line-height: 1.35;
+  margin: 2.75rem 0 0.625rem;
 }
 
-input,
-textarea {
-  font: inherit;
-  color: var(--fg);
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 8px 10px;
-  width: 100%;
+h3 {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  margin: 1.5rem 0 0.375rem;
 }
 
-button {
-  font: inherit;
-  cursor: pointer;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 8px 14px;
-  background: var(--fg);
-  color: var(--bg);
-}
-
-button.secondary {
-  background: var(--bg);
-  color: var(--fg);
-}
-
-button:disabled {
-  opacity: 0.5;
-  cursor: default;
-}
-
-label {
-  display: block;
-  margin: 12px 0 4px;
-  font-size: 0.875rem;
-  color: var(--muted);
-}
-
-.card {
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 16px;
-  margin: 12px 0;
-}
-
-.snippet {
-  display: block;
-  background: #1e1e1e;
-  color: #d4d4d4;
-  border-radius: 8px;
-  padding: 14px;
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 0.8125rem;
-  overflow-x: auto;
-  white-space: pre;
+p {
+  margin: 0.625rem 0;
 }
 
 .muted {
@@ -107,8 +81,212 @@ label {
   font-size: 0.875rem;
 }
 
+/* ---- links ---- */
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* ---- lists ---- */
+
+ol,
+ul {
+  padding-left: 1.375rem;
+  margin: 0.625rem 0;
+}
+
+li {
+  margin: 0.375rem 0;
+}
+
+li::marker {
+  color: var(--muted);
+  font-size: 0.875em;
+}
+
+/* ---- code ---- */
+
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.85em;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.1em 0.35em;
+  white-space: nowrap;
+}
+
+.snippet {
+  display: block;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin: 0.75rem 0;
+  font-size: 0.8125rem;
+  line-height: 1.65;
+  overflow-x: auto;
+  white-space: pre;
+}
+
+kbd {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.75em;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-strong);
+  border-bottom-width: 2px;
+  border-radius: 4px;
+  padding: 0.1em 0.45em;
+}
+
+/* ---- forms ---- */
+
+label {
+  display: block;
+  margin: 14px 0 5px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--muted);
+}
+
+input,
+textarea {
+  font: inherit;
+  font-size: 0.9375rem;
+  color: var(--fg);
+  background: var(--bg);
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+  padding: 7px 10px;
+  width: 100%;
+  transition: border-color 0.15s ease-out;
+}
+
+input:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px oklch(0.5 0.17 262 / 0.15);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--muted);
+  opacity: 0.7;
+}
+
+/* ---- buttons ---- */
+
+button {
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  padding: 6px 14px;
+  background: var(--fg);
+  color: var(--bg);
+  transition: opacity 0.15s ease-out;
+}
+
+button:hover {
+  opacity: 0.85;
+}
+
+button.secondary {
+  background: var(--bg);
+  color: var(--fg);
+  border-color: var(--border-strong);
+}
+
+button.secondary:hover {
+  opacity: 1;
+  background: var(--bg-subtle);
+}
+
+button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ---- surfaces ---- */
+
+.card {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 18px 20px;
+  margin: 14px 0;
+}
+
+.card h2 {
+  margin-top: 0;
+}
+
+/* docs platform sections: rhythm from rules, not boxes */
+.doc-section {
+  border-top: 1px solid var(--border);
+  margin-top: 2.5rem;
+  padding-top: 1.75rem;
+}
+
+.doc-section h2 {
+  margin-top: 0;
+}
+
+.tag {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--muted);
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  padding: 0.05rem 0.55rem;
+  vertical-align: 1px;
+}
+
 .row {
   display: flex;
-  gap: 8px;
+  gap: 12px;
   align-items: center;
+}
+
+/* top-of-page breadcrumb nav */
+.crumbs {
+  font-size: 0.8125rem;
+  color: var(--muted);
+  margin-bottom: 2.25rem;
+}
+
+.crumbs a {
+  color: var(--muted);
+}
+
+.crumbs a:hover {
+  color: var(--fg);
+  text-decoration: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
 }

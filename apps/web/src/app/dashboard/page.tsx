@@ -37,7 +37,7 @@ export default async function DashboardPage({
       )}
 
       <div className="card">
-        <h2 style={{ marginTop: 0, fontSize: "1.125rem" }}>New project</h2>
+        <h2>New project</h2>
         <form action={createProject}>
           <label htmlFor="name">Project name</label>
           <input id="name" name="name" required placeholder="My prototype" />

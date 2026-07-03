@@ -215,7 +215,7 @@ export default async function ProjectPage({
       {searchParams.saved && <p className="muted">Saved.</p>}
 
       <div className="card">
-        <h2 style={{ marginTop: 0, fontSize: "1.125rem" }}>Install snippet</h2>
+        <h2>Install snippet</h2>
         <p className="muted">
           Paste into your prototype&apos;s <code>&lt;head&gt;</code> or
           layout, then redeploy. Platform-specific steps (Lovable, Webflow,
@@ -239,7 +239,7 @@ export default async function ProjectPage({
       </div>
 
       <div className="card">
-        <h2 style={{ marginTop: 0, fontSize: "1.125rem" }}>Threads</h2>
+        <h2>Threads</h2>
         <p className="row" style={{ justifyContent: "space-between" }}>
           <span className="row">
             <Link href={`/p/${project.id}?filter=open`}>Open</Link>
@@ -263,7 +263,7 @@ export default async function ProjectPage({
       </div>
 
       <div className="card">
-        <h2 style={{ marginTop: 0, fontSize: "1.125rem" }}>Who can comment</h2>
+        <h2>Who can comment</h2>
         <form action={updateAccessMode}>
           <input type="hidden" name="id" value={project.id} />
           <label style={{ margin: "8px 0" }}>
@@ -303,7 +303,7 @@ export default async function ProjectPage({
       </div>
 
       <div className="card">
-        <h2 style={{ marginTop: 0, fontSize: "1.125rem" }}>Allowed domains</h2>
+        <h2>Allowed domains</h2>
         <p className="muted">
           Comments are only accepted from these origins. Wildcards like{" "}
           <code>*.lovable.app</code> are supported; include{" "}
@@ -324,7 +324,7 @@ export default async function ProjectPage({
       </div>
 
       <div className="card">
-        <h2 style={{ marginTop: 0, fontSize: "1.125rem" }}>Danger zone</h2>
+        <h2>Danger zone</h2>
         <p className="muted">
           Deleting a project permanently deletes all of its comments.
         </p>
