@@ -70,6 +70,35 @@ export type GuardResult =
   | { ok: true; project: GuestProject; origin: string }
   | { ok: false; response: NextResponse };
 
+// Per-instance memoization of project lookups (scale pass): projects change
+// rarely but are read on every request. Trade-off: settings changes (domains,
+// access mode, token/key regeneration) take up to TTL to propagate.
+// Invalid keys are cached too, so bad-key floods don't hammer the DB.
+const PROJECT_TTL_MS = 30_000;
+const projectCache = new Map<
+  string,
+  { project: GuestProject | null; at: number }
+>();
+
+async function lookupProject(key: string): Promise<GuestProject | null> {
+  const cached = projectCache.get(key);
+  if (cached && Date.now() - cached.at < PROJECT_TTL_MS) return cached.project;
+
+  const supabase = createAdminClient();
+  const { data: project } = await supabase
+    .from("projects")
+    .select("id, public_key, allowed_domains, access_mode, review_token")
+    .eq("public_key", key)
+    .single();
+
+  projectCache.set(key, { project: project ?? null, at: Date.now() });
+  if (projectCache.size > 2000) {
+    const cutoff = Date.now() - PROJECT_TTL_MS;
+    for (const [k, v] of projectCache) if (v.at < cutoff) projectCache.delete(k);
+  }
+  return project ?? null;
+}
+
 /**
  * Validates public key + request origin against the project's allowlist,
  * and — for review_link projects — the secret review token.
@@ -96,13 +125,7 @@ export async function guardGuestRequest(
   if (!key || !key.startsWith("pk_")) return reject("invalid_key", 401);
   if (!origin) return reject("missing_origin", 403);
 
-  const supabase = createAdminClient();
-  const { data: project } = await supabase
-    .from("projects")
-    .select("id, public_key, allowed_domains, access_mode, review_token")
-    .eq("public_key", key)
-    .single();
-
+  const project = await lookupProject(key);
   if (!project) return reject("invalid_key", 401);
 
   let hostname: string;

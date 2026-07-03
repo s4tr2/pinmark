@@ -1,4 +1,5 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": "pnpm --filter widget build && next build"
+  "buildCommand": "pnpm --filter widget build && next build",
+  "crons": [{ "path": "/api/keepalive", "schedule": "0 3 * * *" }]
 }

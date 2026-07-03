@@ -1021,7 +1021,17 @@ function mount(cfg: PinmarkGlobal) {
       /* transient failures are fine; next tick retries */
     }
   }
-  setInterval(pollTick, POLL_MS);
+  // ±20% jitter so a crowd landing on the same page doesn't poll in lockstep
+  function scheduleNextPoll() {
+    setTimeout(
+      async () => {
+        await pollTick();
+        scheduleNextPoll();
+      },
+      POLL_MS * (0.8 + Math.random() * 0.4)
+    );
+  }
+  scheduleNextPoll();
   document.addEventListener("visibilitychange", () => {
     if (document.visibilityState === "visible") pollTick(); // catch up fast
   });

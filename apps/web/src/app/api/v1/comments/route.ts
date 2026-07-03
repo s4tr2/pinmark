@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { corsHeaders, guardGuestRequest } from "@/lib/api/guard";
-import { withinRateLimit } from "@/lib/api/ratelimit";
+import { withinReadLimit, withinWriteLimit } from "@/lib/api/ratelimit";
 import { notifyNewComment } from "@/lib/notify";
 import { createAdminClient } from "@/lib/supabase/admin";
 
@@ -25,7 +25,7 @@ export async function GET(req: NextRequest) {
   );
   if (!guard.ok) return guard.response;
 
-  if (!(await withinRateLimit("read", guard.project.public_key, req)))
+  if (!withinReadLimit(guard.project.public_key, req))
     return NextResponse.json(
       { error: "rate_limited" },
       { status: 429, headers: corsHeaders(guard.origin) }
@@ -96,7 +96,7 @@ export async function POST(req: NextRequest) {
   const bad = (error: string) =>
     NextResponse.json({ error }, { status: 400, headers });
 
-  if (!(await withinRateLimit("write", guard.project.public_key, req)))
+  if (!(await withinWriteLimit(guard.project.public_key, req)))
     return NextResponse.json({ error: "rate_limited" }, { status: 429, headers });
 
   const route = String(payload.route ?? "").slice(0, 500);

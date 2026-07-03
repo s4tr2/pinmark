@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { corsHeaders, guardGuestRequest } from "@/lib/api/guard";
-import { withinRateLimit } from "@/lib/api/ratelimit";
+import { withinWriteLimit } from "@/lib/api/ratelimit";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 export const dynamic = "force-dynamic";
@@ -33,7 +33,7 @@ async function loadOwnComment(
     error: NextResponse.json({ error }, { status, headers }),
   });
 
-  if (!(await withinRateLimit("write", guard.project.public_key, req)))
+  if (!(await withinWriteLimit(guard.project.public_key, req)))
     return fail("rate_limited", 429);
 
   const authorToken = String(payload.author_token ?? "");
