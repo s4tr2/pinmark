@@ -295,16 +295,13 @@ button:focus-visible {
   margin: 0 0 1.75rem;
 }
 
+/* status line, not a box: a green dot already says "live" */
 .try-callout {
   display: flex;
-  align-items: center;
+  align-items: baseline;
   gap: 10px;
   font-size: 0.9375rem;
-  border: 1px solid var(--border);
-  background: var(--bg-subtle);
-  border-radius: 8px;
-  padding: 10px 14px;
-  margin: 1.5rem 0;
+  margin: 1.75rem 0 2.25rem;
 }
 
 .try-dot {
@@ -313,6 +310,29 @@ button:focus-visible {
   border-radius: 50%;
   background: oklch(0.72 0.19 145);
   flex-shrink: 0;
+  align-self: center;
+  animation: live-pulse 2.4s ease-out infinite;
+}
+
+@keyframes live-pulse {
+  0% {
+    box-shadow: 0 0 0 0 oklch(0.72 0.19 145 / 0.45);
+  }
+  70% {
+    box-shadow: 0 0 0 7px oklch(0.72 0.19 145 / 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 oklch(0.72 0.19 145 / 0);
+  }
+}
+
+/* snippet + CTA read as one artifact */
+.hero-cta .snippet {
+  margin-bottom: 0;
+}
+
+.hero-cta a.muted:hover {
+  color: var(--fg);
 }
 
 .landing .steps li {

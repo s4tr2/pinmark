@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Script from "next/script";
-import { BRAND_NAME, CDN_URL, snippetFor } from "@/lib/config";
+import { BRAND_NAME, CDN_URL } from "@/lib/config";
 
 const DEMO_KEY = process.env.NEXT_PUBLIC_DEMO_KEY;
 
@@ -27,17 +27,24 @@ export default function LandingPage() {
       {DEMO_KEY && (
         <p className="try-callout">
           <span className="try-dot" aria-hidden />
-          Live on this page. Press <kbd>C</kbd> and click anywhere, or drag
-          to comment on an area.
+          <span>
+            Live on this page — press <kbd>C</kbd> and click anywhere, or
+            drag to comment on an area.
+          </span>
         </p>
       )}
 
-      <code className="snippet">{snippetFor("pk_live_YOUR_KEY")}</code>
-      <p>
-        <Link href="/login">
-          <button type="button">Get your snippet</button>
-        </Link>
-      </p>
+      <div className="hero-cta">
+        <code className="snippet">{`<script async src="${CDN_URL}/w.js"\n        data-pinmark="pk_live_YOUR_KEY"></script>`}</code>
+        <p className="row" style={{ marginTop: 10 }}>
+          <Link href="/login">
+            <button type="button">Get your snippet</button>
+          </Link>
+          <Link href="/docs" className="muted">
+            or read the install guide
+          </Link>
+        </p>
+      </div>
 
       <section className="doc-section">
         <h2>How it works</h2>
