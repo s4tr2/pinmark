@@ -68,9 +68,7 @@ describe("validateCommentInput", () => {
 
 describe("read-path token hygiene", () => {
   it("PUBLIC_COLUMNS never exposes author_token", async () => {
-    const { PUBLIC_COLUMNS } = await import(
-      "@/app/api/v1/comments/route"
-    );
+    const { PUBLIC_COLUMNS } = await import("./validate");
     expect(PUBLIC_COLUMNS).not.toContain("author_token");
   });
 });

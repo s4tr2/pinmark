@@ -5,6 +5,12 @@
 export const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
+// Public comment shape for all guest-facing reads. author_token is
+// intentionally absent: guests prove ownership via the token on writes,
+// never via reads. Tested in validate.test.ts.
+export const PUBLIC_COLUMNS =
+  "id, parent_id, route, anchor, author_name, body, resolved, created_at";
+
 export const BODY_MAX = 4000;
 export const NAME_MAX = 100;
 export const ROUTE_MAX = 500;

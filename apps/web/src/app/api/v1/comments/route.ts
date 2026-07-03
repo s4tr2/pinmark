@@ -1,17 +1,11 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { corsHeaders, guardGuestRequest } from "@/lib/api/guard";
 import { withinReadLimit, withinWriteLimit } from "@/lib/api/ratelimit";
-import { validateCommentInput } from "@/lib/api/validate";
+import { PUBLIC_COLUMNS, validateCommentInput } from "@/lib/api/validate";
 import { notifyNewComment } from "@/lib/notify";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 export const dynamic = "force-dynamic";
-
-// Public comment shape. author_token is intentionally absent: guests prove
-// ownership of their own comments via the token on writes, never via reads.
-// Exported so tests can assert the token never joins the read path.
-export const PUBLIC_COLUMNS =
-  "id, parent_id, route, anchor, author_name, body, resolved, created_at";
 
 export async function OPTIONS(req: NextRequest) {
   const origin = req.headers.get("origin") ?? "*";
