@@ -1,13 +1,16 @@
 import type { Metadata } from "next";
 import { GeistSans } from "geist/font/sans";
-import { Fraunces } from "next/font/google";
+import { Instrument_Serif } from "next/font/google";
 import { BRAND_NAME } from "@/lib/config";
 import "./globals.css";
 
-const fraunces = Fraunces({
+// Free stand-in for Signifier (Klim): sharp editorial display serif.
+// Single weight; the hero compensates with size.
+const displaySerif = Instrument_Serif({
+  weight: "400",
   subsets: ["latin"],
   display: "swap",
-  variable: "--font-fraunces",
+  variable: "--font-display-serif",
 });
 
 export const metadata: Metadata = {
@@ -21,7 +24,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${GeistSans.variable} ${fraunces.variable}`}>
+    <html lang="en" className={`${GeistSans.variable} ${displaySerif.variable}`}>
       <body>{children}</body>
     </html>
   );

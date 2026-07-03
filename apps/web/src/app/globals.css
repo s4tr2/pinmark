@@ -277,14 +277,15 @@ button:focus-visible {
 /* ---- landing (brand register: display scale, same tokens) ---- */
 
 .landing .hero-title {
-  /* Fraunces: variable display serif — softer tracking than the sans */
-  font-family: var(--font-fraunces), Georgia, "Times New Roman", serif;
-  font-size: 2.75rem;
-  font-weight: 550;
-  letter-spacing: -0.015em;
-  line-height: 1.12;
-  margin: 3.5rem 0 1.125rem;
-  max-width: 18ch;
+  /* Instrument Serif (Signifier stand-in): single 400 weight,
+     so scale carries the presence instead of boldness */
+  font-family: var(--font-display-serif), Georgia, "Times New Roman", serif;
+  font-size: 3.25rem;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  line-height: 1.08;
+  margin: 3.5rem 0 1.25rem;
+  max-width: 20ch;
 }
 
 .landing .hero-sub {
