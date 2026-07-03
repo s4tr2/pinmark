@@ -326,9 +326,13 @@ button:focus-visible {
   }
 }
 
-/* snippet + CTA read as one artifact */
+/* snippet + CTA read as one artifact. One line, always: the box hugs its
+   content and may extend past the text column rather than wrap or clip;
+   only genuinely narrow viewports scroll. */
 .hero-cta .snippet {
   margin-bottom: 0;
+  width: fit-content;
+  max-width: calc(100vw - 48px);
 }
 
 .hero-cta a.muted:hover {

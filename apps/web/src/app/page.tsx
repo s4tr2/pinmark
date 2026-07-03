@@ -35,7 +35,7 @@ export default function LandingPage() {
       )}
 
       <div className="hero-cta">
-        <code className="snippet">{`<script async src="${CDN_URL}/w.js"\n        data-pinmark="pk_live_YOUR_KEY"></script>`}</code>
+        <code className="snippet">{`<script async src="${CDN_URL}/w.js" data-pinmark="pk_live_YOUR_KEY"></script>`}</code>
         <p className="row" style={{ marginTop: 10 }}>
           <Link href="/login">
             <button type="button">Get your snippet</button>
