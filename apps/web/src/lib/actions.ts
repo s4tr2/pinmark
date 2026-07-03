@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { APP_URL } from "@/lib/config";
+import { parseDomains } from "@/lib/domains";
 
 export async function sendMagicLink(formData: FormData) {
   const email = String(formData.get("email") ?? "").trim();
@@ -24,23 +25,6 @@ const nanoid = customAlphabet(
   "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ",
   24
 );
-
-function parseDomains(raw: string): string[] {
-  return raw
-    .split(/[\n,]/)
-    .map((d) => d.trim().toLowerCase())
-    .filter(Boolean)
-    .map((d) => {
-      // Users paste full URLs; the allowlist matches hostnames. Normalize
-      // "https://foo.vercel.app/some/path" → "foo.vercel.app".
-      if (d.startsWith("*.")) return d; // wildcards pass through
-      try {
-        return new URL(d.includes("://") ? d : `https://${d}`).hostname;
-      } catch {
-        return d;
-      }
-    });
-}
 
 export async function createProject(formData: FormData) {
   const supabase = createClient();

@@ -28,6 +28,17 @@ Magic-link emails in local dev are captured by Inbucket at http://127.0.0.1:5432
 
 No Docker? Create a free [Supabase cloud](https://supabase.com) project instead, run the SQL in `supabase/migrations/` against it, and point `.env.local` at the project's URL and keys.
 
+## Testing
+
+```sh
+pnpm test    # unit: security invariants + anchoring engine (Vitest)
+pnpm e2e     # widget end-to-end, hermetic (Playwright)
+```
+
+CI enforces typecheck, both suites, and hard bundle-size budgets (loader
+≤ 3 KB gzip, core ≤ 40 KB gzip) on every push. See [TESTING.md](TESTING.md)
+for the philosophy and [CONTRIBUTING.md](CONTRIBUTING.md) for the rules.
+
 ## Guest privacy
 
 Reviewers never create accounts. Server-side, a guest comment stores only a display name and a random per-browser token (used for the 5-minute self-edit window and never exposed via public API responses). IPs are used transiently for rate limiting and never stored on comment rows. Client-side: name + token in localStorage. No emails, no cookies, no tracking.

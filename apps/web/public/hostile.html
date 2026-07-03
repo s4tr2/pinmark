@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Pinmark hostile-CSS fixture</title>
+  <!-- Acceptance criterion: a host page with aggressive global CSS cannot
+       visually break the widget (closed shadow DOM isolation). -->
+  <style>
+    * { all: unset !important; display: revert !important; }
+    div, button, input, textarea, span, p { all: unset !important; }
+    body { transform: scale(0.999); font-size: 7px !important; background: #ff00ff; }
+    button { visibility: hidden !important; opacity: 0.1 !important; }
+  </style>
+</head>
+<body>
+  <p>This page nukes every style. The widget must still render correctly.</p>
+  <script>
+    (function () {
+      var key = new URLSearchParams(location.search).get("key");
+      if (!key) return;
+      var s = document.createElement("script");
+      s.async = true;
+      s.src = "/w.js";
+      s.setAttribute("data-pinmark", key);
+      document.head.appendChild(s);
+    })();
+  </script>
+</body>
+</html>

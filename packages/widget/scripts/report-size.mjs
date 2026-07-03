@@ -1,5 +1,6 @@
-// Reports gzipped bundle sizes against PRD budgets (loader 3 KB, core 40 KB).
-// M6 turns this into a hard CI failure; for now it warns.
+// Enforces gzipped bundle budgets (PRD §5.1 / acceptance criteria):
+// loader 3 KB, core 40 KB. Exits non-zero over budget, so `pnpm --filter
+// widget build` — and therefore CI — fails hard.
 import { readFileSync } from "node:fs";
 import { gzipSync } from "node:zlib";
 import { resolve } from "node:path";
@@ -10,9 +11,17 @@ const budgets = [
   ["widget.core.js", 40 * 1024],
 ];
 
+let failed = false;
 for (const [file, budget] of budgets) {
   const gz = gzipSync(readFileSync(resolve(out, file))).length;
   const kb = (gz / 1024).toFixed(2);
-  const status = gz <= budget ? "OK" : "OVER BUDGET";
-  console.log(`${file}: ${kb} KB gzipped (budget ${budget / 1024} KB) ${status}`);
+  const over = gz > budget;
+  if (over) failed = true;
+  console.log(
+    `${file}: ${kb} KB gzipped (budget ${budget / 1024} KB) ${over ? "OVER BUDGET" : "OK"}`
+  );
+}
+if (failed) {
+  console.error("Bundle size budget exceeded — build failed.");
+  process.exit(1);
 }

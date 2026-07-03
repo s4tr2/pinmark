@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { corsHeaders, guardGuestRequest } from "@/lib/api/guard";
 import { withinReadLimit, withinWriteLimit } from "@/lib/api/ratelimit";
+import { validateCommentInput } from "@/lib/api/validate";
 import { notifyNewComment } from "@/lib/notify";
 import { createAdminClient } from "@/lib/supabase/admin";
 
@@ -8,7 +9,8 @@ export const dynamic = "force-dynamic";
 
 // Public comment shape. author_token is intentionally absent: guests prove
 // ownership of their own comments via the token on writes, never via reads.
-const PUBLIC_COLUMNS =
+// Exported so tests can assert the token never joins the read path.
+export const PUBLIC_COLUMNS =
   "id, parent_id, route, anchor, author_name, body, resolved, created_at";
 
 export async function OPTIONS(req: NextRequest) {
@@ -70,9 +72,6 @@ export async function GET(req: NextRequest) {
   );
 }
 
-const UUID_RE =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-
 // Bounds database growth if a distributed flood gets past per-IP limits;
 // the key-regeneration kill switch handles the rest.
 const MAX_COMMENTS_PER_PROJECT = 2000;
@@ -99,22 +98,10 @@ export async function POST(req: NextRequest) {
   if (!(await withinWriteLimit(guard.project.public_key, req)))
     return NextResponse.json({ error: "rate_limited" }, { status: 429, headers });
 
-  const route = String(payload.route ?? "").slice(0, 500);
-  const body = String(payload.body ?? "").trim();
-  const authorName = String(payload.author_name ?? "").trim();
-  const authorToken = String(payload.author_token ?? "");
-  const parentId = payload.parent_id ? String(payload.parent_id) : null;
-  const anchor = payload.anchor ?? null;
-
-  if (!route) return bad("route_required");
-  if (body.length < 1 || body.length > 4000) return bad("body_length");
-  if (authorName.length < 1 || authorName.length > 100)
-    return bad("author_name_length");
-  if (!UUID_RE.test(authorToken)) return bad("author_token_invalid");
-  if (parentId && !UUID_RE.test(parentId)) return bad("parent_id_invalid");
-  if (anchor !== null && (typeof anchor !== "object" || Array.isArray(anchor)))
-    return bad("anchor_invalid");
-  if (anchor && JSON.stringify(anchor).length > 4000) return bad("anchor_size");
+  const validated = validateCommentInput(payload);
+  if (!validated.ok) return bad(validated.error);
+  const { route, body, authorName, authorToken, parentId, anchor } =
+    validated.input;
 
   const supabase = createAdminClient();
 

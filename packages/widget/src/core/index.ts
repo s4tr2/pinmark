@@ -22,6 +22,9 @@ interface PinmarkGlobal {
   key: string;
   base: string;
   mounted?: boolean;
+  // Observable state for e2e tests: the closed shadow root is intentionally
+  // impenetrable, so tests (and debugging) read this instead.
+  pins?: number;
 }
 
 declare global {
@@ -337,6 +340,7 @@ function mount(cfg: PinmarkGlobal) {
       pinLayer.appendChild(btn);
     });
     updateRegionDisplay();
+    cfg.pins = pinLayer.children.length;
   }
 
   function repositionPins() {
