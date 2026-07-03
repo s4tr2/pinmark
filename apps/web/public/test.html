@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pinmark widget test page</title>
+  <style>
+    body { font-family: Georgia, serif; margin: 0; }
+    header { background: #1e3a5f; color: #fff; padding: 48px 24px; }
+    main { max-width: 860px; margin: 0 auto; padding: 24px; }
+    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 24px 0; }
+    .card { border: 1px solid #ccc; border-radius: 8px; padding: 16px; }
+    .tall { height: 900px; background: linear-gradient(#fafafa, #e8e8e8); border-radius: 8px;
+            display: flex; align-items: center; justify-content: center; color: #999; margin: 24px 0; }
+    button.cta { background: #d97706; color: #fff; border: none; padding: 12px 24px;
+                 border-radius: 6px; font-size: 16px; cursor: pointer; }
+    footer { background: #111; color: #888; padding: 48px 24px; text-align: center; }
+    #key-form { background: #fef3c7; border: 1px solid #d97706; padding: 16px 24px; }
+  </style>
+</head>
+<body>
+  <div id="key-form">
+    <strong>Pinmark test page.</strong> Append <code>?key=pk_live_…</code> to the URL to load
+    the widget with your project key (project must allow <code>localhost</code>).
+  </div>
+
+  <header>
+    <h1 id="hero-title">A varied test layout</h1>
+    <p>Pin comments on the header, cards, button, and tall scroll regions.</p>
+  </header>
+
+  <main>
+    <div class="grid">
+      <div class="card" data-testid="card-alpha"><h3>Alpha</h3><p>First card with a testid.</p></div>
+      <div class="card"><h3>Beta</h3><p>Second card, no stable hooks.</p></div>
+      <div class="card"><h3>Gamma</h3><p>Third card.</p></div>
+    </div>
+
+    <p><button class="cta" id="pay-button">Checkout — $49</button></p>
+
+    <div class="tall">Tall region — test pins while scrolling</div>
+
+    <section>
+      <h2>Typing area (tests the C-key focus guard)</h2>
+      <p><input placeholder="Type the letter c here — comment mode must NOT toggle" style="width:100%;padding:8px" /></p>
+      <p><textarea placeholder="Also try c in here" style="width:100%;padding:8px" rows="3"></textarea></p>
+    </section>
+
+    <div class="tall">Second tall region</div>
+  </main>
+
+  <footer>Pinmark test fixture — not a real page</footer>
+
+  <script>
+    (function () {
+      var key = new URLSearchParams(location.search).get("key");
+      if (!key) return;
+      var s = document.createElement("script");
+      s.async = true;
+      s.src = "/w.js";
+      s.setAttribute("data-pinmark", key);
+      document.head.appendChild(s);
+    })();
+  </script>
+</body>
+</html>

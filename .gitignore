@@ -1,0 +1,26 @@
+# dependencies
+node_modules/
+
+# builds
+.next/
+dist/
+out/
+
+# env
+.env
+.env.local
+.env*.local
+
+# supabase local
+supabase/.temp/
+supabase/.branches/
+
+# misc
+.DS_Store
+*.log
+.vercel
+tsconfig.tsbuildinfo
+
+# widget build outputs (rebuilt from packages/widget)
+apps/web/public/w.js
+apps/web/public/widget.core.js
