@@ -32,15 +32,18 @@ export async function GET(req: NextRequest) {
     );
 
   const route = searchParams.get("route") ?? "/";
+  const allRoutes = searchParams.get("all") === "1"; // widget threads panel
   const supabase = createAdminClient();
 
+  let commentsQuery = supabase
+    .from("comments")
+    .select(PUBLIC_COLUMNS)
+    .eq("project_id", guard.project.id)
+    .order("created_at", { ascending: true });
+  if (!allRoutes) commentsQuery = commentsQuery.eq("route", route);
+
   const [{ data: comments, error }, { data: openPins }] = await Promise.all([
-    supabase
-      .from("comments")
-      .select(PUBLIC_COLUMNS)
-      .eq("project_id", guard.project.id)
-      .eq("route", route)
-      .order("created_at", { ascending: true }),
+    commentsQuery,
     supabase
       .from("comments")
       .select("route")

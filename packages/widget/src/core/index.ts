@@ -144,8 +144,11 @@ function mount(cfg: PinmarkGlobal) {
   let route = currentRoute();
   let counts: Record<string, number> = {};
   let pinsVisible = true;
+  let showResolved = false;
   let commentMode = false;
   let menuOpen = false;
+  let panelOpen = false;
+  let panelData: Comment[] | null = null; // all-routes threads, fetched on open
   // popover: composer (new pin) or thread (existing pin)
   let popover:
     | { kind: "composer"; anchor: Anchor; vx: number; vy: number }
@@ -182,6 +185,7 @@ function mount(cfg: PinmarkGlobal) {
       counts = res.counts;
       lastSnapshot = snapshotOf(comments, counts);
       renderAll();
+      consumeGotoTarget(); // cross-route panel navigation lands here
     } catch (e) {
       const code = (e as Error).message;
       if (code === "review_token_required") {
@@ -203,7 +207,8 @@ function mount(cfg: PinmarkGlobal) {
 
   function topLevelPins(): Comment[] {
     return comments.filter(
-      (c) => !c.parent_id && c.route === route && !c.resolved
+      (c) =>
+        !c.parent_id && c.route === route && (!c.resolved || showResolved)
     );
   }
 
@@ -307,6 +312,7 @@ function mount(cfg: PinmarkGlobal) {
       const btn = el("button", "pin", String(i + 1));
       btn.dataset.pin = pin.id;
       if (pos.approximate) btn.classList.add("approx");
+      if (pin.resolved) btn.classList.add("resolved");
       btn.style.left = `${pos.x}px`;
       btn.style.top = `${pos.y}px`;
       btn.setAttribute(
@@ -386,6 +392,12 @@ function mount(cfg: PinmarkGlobal) {
         menuOpen = false;
         setCommentMode(true);
       });
+      const threads = el("button", "", "All threads");
+      threads.addEventListener("click", (e) => {
+        e.stopPropagation();
+        menuOpen = false;
+        openPanel();
+      });
       const toggle = el(
         "button",
         "",
@@ -396,14 +408,151 @@ function mount(cfg: PinmarkGlobal) {
         menuOpen = false;
         renderAll();
       });
+      const resolvedToggle = el(
+        "button",
+        "",
+        showResolved ? "Hide resolved" : "Show resolved"
+      );
+      resolvedToggle.addEventListener("click", () => {
+        showResolved = !showResolved;
+        menuOpen = false;
+        renderAll();
+      });
       const brand = el("div", "brand");
       const link = el("a", "", "Powered by Pinmark");
       (link as HTMLAnchorElement).href = cfg.base;
       (link as HTMLAnchorElement).target = "_blank";
       brand.appendChild(link);
-      menu.append(add, toggle, brand);
+      menu.append(add, threads, toggle, resolvedToggle, brand);
       uiLayer.appendChild(menu);
     }
+
+    if (panelOpen) renderPanel();
+  }
+
+  // ---- all-threads panel (PRD §4.3): grouped by route, click navigates ----
+  function openPanel() {
+    panelOpen = true;
+    panelData = null;
+    renderBubble();
+    api
+      .fetchComments(route, true)
+      .then((res) => {
+        panelData = res.comments;
+        if (panelOpen) renderBubble();
+      })
+      .catch(() => {
+        panelData = [];
+        if (panelOpen) renderBubble();
+      });
+  }
+
+  function renderPanel() {
+    const panel = el("div", "panel");
+    panel.setAttribute("role", "dialog");
+    panel.setAttribute("aria-label", "All comment threads");
+    panel.addEventListener("click", (e) => e.stopPropagation());
+
+    if (panelData === null) {
+      panel.appendChild(el("p", "empty", "Loading…"));
+    } else {
+      const pins = panelData.filter((c) => !c.parent_id);
+      if (pins.length === 0) {
+        panel.appendChild(el("p", "empty", "No comments yet."));
+      } else {
+        const byRoute = new Map<string, Comment[]>();
+        for (const pin of pins) {
+          byRoute.set(pin.route, [...(byRoute.get(pin.route) ?? []), pin]);
+        }
+        for (const [threadRoute, routePins] of byRoute) {
+          panel.appendChild(el("h3", "", threadRoute));
+          for (const pin of routePins) {
+            const item = el("button", "thread-item");
+            const who = el("div", "who");
+            who.append(pin.author_name, ` · ${relTime(pin.created_at)}`);
+            if (pin.resolved) who.appendChild(el("span", "done", "resolved"));
+            const excerpt = el("div", "excerpt", pin.body);
+            item.append(who, excerpt);
+            item.addEventListener("click", () => goToPin(pin));
+            panel.appendChild(item);
+          }
+        }
+      }
+    }
+
+    trapFocus(panel);
+    uiLayer.appendChild(panel);
+  }
+
+  function goToPin(pin: Comment) {
+    if (pin.route === route) {
+      panelOpen = false;
+      renderBubble();
+      pulsePin(pin.id);
+    } else {
+      // cross-route: remember the target, navigate, pulse after reload/render
+      try {
+        sessionStorage.setItem("pinmark:goto", pin.id);
+      } catch {
+        /* ignore */
+      }
+      location.assign(pin.route);
+    }
+  }
+
+  function pulsePin(id: string) {
+    const pin = comments.find((c) => c.id === id);
+    if (pin?.resolved && !showResolved) {
+      showResolved = true; // target is resolved and hidden — reveal it
+      renderAll();
+    }
+    const pos = pinPositions.get(id) ?? (pin?.anchor ? resolveAnchor(pin.anchor) : null);
+    if (pos) {
+      window.scrollTo({
+        top: Math.max(0, pos.y + window.scrollY - innerHeight / 2),
+        behavior: "smooth",
+      });
+    }
+    // let the scroll settle before pulsing so the ring is seen
+    setTimeout(() => {
+      repositionPins();
+      const node = pinLayer.querySelector(`[data-pin="${id}"]`);
+      node?.classList.add("pulse");
+      setTimeout(() => node?.classList.remove("pulse"), 2200);
+    }, 350);
+  }
+
+  function consumeGotoTarget() {
+    try {
+      const id = sessionStorage.getItem("pinmark:goto");
+      if (id && comments.some((c) => c.id === id)) {
+        sessionStorage.removeItem("pinmark:goto");
+        pulsePin(id);
+      }
+    } catch {
+      /* ignore */
+    }
+  }
+
+  // ---- focus trap (PRD §10 accessibility): Tab cycles inside the surface
+  function trapFocus(container: HTMLElement) {
+    container.addEventListener("keydown", (e) => {
+      if (e.key !== "Tab") return;
+      const focusables = container.querySelectorAll<HTMLElement>(
+        'button, [href], input, textarea, [tabindex]:not([tabindex="-1"])'
+      );
+      if (focusables.length === 0) return;
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      const active = shadow.activeElement;
+      if (e.shiftKey && active === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && active === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    });
   }
 
   function popoverPosition(vx: number, vy: number): { x: number; y: number } {
@@ -430,6 +579,7 @@ function mount(cfg: PinmarkGlobal) {
     if (popover.kind === "composer") buildComposer(card, popover.anchor);
     else buildThread(card, popover.pinId);
 
+    trapFocus(card);
     uiLayer.appendChild(card);
     const first = card.querySelector<HTMLElement>("input, textarea");
     first?.focus();
@@ -753,7 +903,10 @@ function mount(cfg: PinmarkGlobal) {
     if (e.key === "Escape") {
       if (popover) closePopover();
       else if (commentMode) setCommentMode(false);
-      else if (menuOpen) {
+      else if (panelOpen) {
+        panelOpen = false;
+        renderBubble();
+      } else if (menuOpen) {
         menuOpen = false;
         renderBubble();
       }
@@ -773,8 +926,9 @@ function mount(cfg: PinmarkGlobal) {
   // Click outside closes menu/popovers (host page clicks pass through our
   // pointer-events:none layers, so listen on document)
   document.addEventListener("click", () => {
-    if (menuOpen || popover) {
+    if (menuOpen || popover || panelOpen) {
       menuOpen = false;
+      panelOpen = false;
       popover = null;
       renderAll();
     }

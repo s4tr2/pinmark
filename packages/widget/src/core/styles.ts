@@ -282,6 +282,84 @@ export const CSS = `
 }
 .own-action:hover { color: var(--fg); }
 
+/* ---- all-threads panel ---- */
+.panel {
+  position: fixed;
+  right: 16px;
+  bottom: 68px;
+  width: 300px;
+  max-height: min(60vh, 480px);
+  overflow-y: auto;
+  background: var(--bg);
+  color: var(--fg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  padding: 10px;
+  pointer-events: auto;
+}
+.panel h3 {
+  margin: 8px 4px 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+  letter-spacing: 0.02em;
+}
+.panel h3:first-child { margin-top: 2px; }
+.panel .thread-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  border-radius: 8px;
+  padding: 7px 8px;
+  cursor: pointer;
+  color: var(--fg);
+}
+.panel .thread-item:hover { background: var(--bg-subtle); }
+.panel .thread-item .who {
+  font-size: 12px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.panel .thread-item .who .done {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0 6px;
+}
+.panel .thread-item .excerpt {
+  font-size: 12px;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.panel .empty {
+  font-size: 12.5px;
+  color: var(--muted);
+  padding: 8px;
+}
+
+/* resolved pins (shown via menu toggle) */
+.pin.resolved {
+  opacity: 0.55;
+  background: var(--bg-subtle);
+}
+
+/* navigate-to-pin pulse */
+.pin.pulse { animation: pin-pulse 1s ease-out 2; }
+@keyframes pin-pulse {
+  0% { box-shadow: 0 0 0 0 var(--accent-soft), var(--shadow); }
+  60% { box-shadow: 0 0 0 12px transparent, var(--shadow); }
+  100% { box-shadow: 0 0 0 0 transparent, var(--shadow); }
+}
+
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; animation: none !important; }
 }

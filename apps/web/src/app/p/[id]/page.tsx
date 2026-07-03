@@ -244,6 +244,13 @@ export default async function ProjectPage({
           <span className="row">
             <Link href={`/p/${project.id}?filter=open`}>Open</Link>
             <Link href={`/p/${project.id}?filter=resolved`}>Resolved</Link>
+            <span className="muted">·</span>
+            <a href={`/api/export/${project.id}?format=md`} className="muted">
+              Export .md
+            </a>
+            <a href={`/api/export/${project.id}?format=docx`} className="muted">
+              Export .docx
+            </a>
           </span>
           {filter === "open" &&
             (comments ?? []).some((c) => !c.parent_id && !c.resolved) && (

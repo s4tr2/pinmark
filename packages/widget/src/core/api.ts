@@ -42,10 +42,14 @@ export class Api {
     private token: string | null
   ) {}
 
-  async fetchComments(route: string): Promise<CommentsResponse> {
+  async fetchComments(
+    route: string,
+    allRoutes = false
+  ): Promise<CommentsResponse> {
     const url = new URL("/api/v1/comments", this.base);
     url.searchParams.set("key", this.key);
     url.searchParams.set("route", route);
+    if (allRoutes) url.searchParams.set("all", "1");
     if (this.token) url.searchParams.set("token", this.token);
     const res = await fetch(url, { mode: "cors" });
     if (!res.ok) {
