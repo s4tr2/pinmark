@@ -1,5 +1,8 @@
 :root {
-  /* neutrals tinted toward the accent hue (262) — never pure gray */
+  /* neutrals tinted toward the accent hue (262) — never pure gray.
+     Light is the app's default regardless of OS preference; the widget
+     adapts to its host page separately. */
+  color-scheme: light;
   --bg: oklch(0.99 0.002 262);
   --bg-subtle: oklch(0.965 0.004 262);
   --fg: oklch(0.22 0.01 262);
@@ -8,19 +11,6 @@
   --border-strong: oklch(0.85 0.008 262);
   --accent: oklch(0.5 0.17 262);
   --danger: oklch(0.55 0.19 25);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: oklch(0.19 0.008 262);
-    --bg-subtle: oklch(0.23 0.01 262);
-    --fg: oklch(0.93 0.005 262);
-    --muted: oklch(0.66 0.012 262);
-    --border: oklch(0.3 0.01 262);
-    --border-strong: oklch(0.38 0.012 262);
-    --accent: oklch(0.74 0.13 262);
-    --danger: oklch(0.7 0.16 25);
-  }
 }
 
 * {
