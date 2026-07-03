@@ -147,7 +147,12 @@ function mount(cfg: PinmarkGlobal) {
         return;
       }
       // Single namespaced warning; never throw into the host page (PRD §5.1)
-      console.warn("[pinmark] could not load comments:", code);
+      const hints: Record<string, string> = {
+        domain_not_allowed: `this page's domain (${location.hostname}) is not in the project's allowed domains — add it in the dashboard`,
+        invalid_key: "the data-pinmark key doesn't match any project — check the snippet against the dashboard",
+        rate_limited: "rate limit reached — try again shortly",
+      };
+      console.warn("[pinmark] could not load comments:", hints[code] ?? code);
     }
   }
 

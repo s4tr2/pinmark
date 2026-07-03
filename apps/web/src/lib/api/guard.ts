@@ -79,20 +79,22 @@ export async function guardGuestRequest(
   key: string | null,
   reviewToken: string | null
 ): Promise<GuardResult> {
-  if (!key || !key.startsWith("pk_")) {
-    return {
-      ok: false,
-      response: NextResponse.json({ error: "invalid_key" }, { status: 401 }),
-    };
-  }
-
+  // Every rejection carries CORS headers: without them the browser hides
+  // the error body and the widget (and its console warning) can only say
+  // "Failed to fetch" — undiagnosable for users. Exposing the error code
+  // to any origin leaks nothing: the codes are self-describing rejections.
   const origin = requestOrigin(req);
-  if (!origin) {
-    return {
+  const reject = (error: string, status: number) =>
+    ({
       ok: false,
-      response: NextResponse.json({ error: "missing_origin" }, { status: 403 }),
-    };
-  }
+      response: NextResponse.json(
+        { error },
+        { status, headers: corsHeaders(origin ?? "*") }
+      ),
+    }) as const;
+
+  if (!key || !key.startsWith("pk_")) return reject("invalid_key", 401);
+  if (!origin) return reject("missing_origin", 403);
 
   const supabase = createAdminClient();
   const { data: project } = await supabase
@@ -101,46 +103,23 @@ export async function guardGuestRequest(
     .eq("public_key", key)
     .single();
 
-  if (!project) {
-    return {
-      ok: false,
-      response: NextResponse.json({ error: "invalid_key" }, { status: 401 }),
-    };
-  }
+  if (!project) return reject("invalid_key", 401);
 
   let hostname: string;
   try {
     hostname = new URL(origin).hostname;
   } catch {
-    return {
-      ok: false,
-      response: NextResponse.json({ error: "bad_origin" }, { status: 403 }),
-    };
+    return reject("bad_origin", 403);
   }
 
-  if (!hostnameAllowed(hostname, project.allowed_domains ?? [])) {
-    return {
-      ok: false,
-      response: NextResponse.json(
-        { error: "domain_not_allowed" },
-        { status: 403 }
-      ),
-    };
-  }
+  if (!hostnameAllowed(hostname, project.allowed_domains ?? []))
+    return reject("domain_not_allowed", 403);
 
   if (
     project.access_mode === "review_link" &&
     !tokensMatch(reviewToken, project.review_token)
-  ) {
-    // CORS headers so the widget can read this error and go dormant silently
-    return {
-      ok: false,
-      response: NextResponse.json(
-        { error: "review_token_required" },
-        { status: 403, headers: corsHeaders(origin) }
-      ),
-    };
-  }
+  )
+    return reject("review_token_required", 403);
 
   return { ok: true, project, origin };
 }
