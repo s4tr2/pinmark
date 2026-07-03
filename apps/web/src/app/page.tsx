@@ -12,7 +12,8 @@ export default function LandingPage() {
       </p>
       <p>
         <Link href="/login">Sign in</Link> ·{" "}
-        <Link href="/dashboard">Dashboard</Link>
+        <Link href="/dashboard">Dashboard</Link> ·{" "}
+        <Link href="/docs">Install guide</Link>
       </p>
       <p className="muted">Landing page design comes later (PRD §7).</p>
     </main>

@@ -218,7 +218,8 @@ export default async function ProjectPage({
         <h2 style={{ marginTop: 0, fontSize: "1.125rem" }}>Install snippet</h2>
         <p className="muted">
           Paste into your prototype&apos;s <code>&lt;head&gt;</code> or
-          layout, then redeploy.
+          layout, then redeploy. Platform-specific steps (Lovable, Webflow,
+          Framer, …): <Link href="/docs">install guide</Link>.
         </p>
         <code className="snippet">{snippet}</code>
         <p className="row">
