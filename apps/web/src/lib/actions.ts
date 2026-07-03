@@ -4,6 +4,21 @@ import { customAlphabet } from "nanoid";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { APP_URL } from "@/lib/config";
+
+export async function sendMagicLink(formData: FormData) {
+  const email = String(formData.get("email") ?? "").trim();
+  if (!email) redirect("/login?error=Enter+an+email");
+
+  const supabase = createClient();
+  const { error } = await supabase.auth.signInWithOtp({
+    email,
+    options: { emailRedirectTo: `${APP_URL}/auth/callback` },
+  });
+
+  if (error) redirect(`/login?error=${encodeURIComponent(error.message)}`);
+  redirect("/login?sent=1");
+}
 
 const nanoid = customAlphabet(
   "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ",

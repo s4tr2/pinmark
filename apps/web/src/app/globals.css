@@ -71,6 +71,11 @@ button.secondary {
   color: var(--fg);
 }
 
+button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
 label {
   display: block;
   margin: 12px 0 4px;
