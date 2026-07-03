@@ -224,21 +224,36 @@ export const CSS = `
 .popover .actions button {
   font-size: 13px;
   font-weight: 500;
-  padding: 6px 14px;
-  border-radius: 7px;
+  padding: 7px 16px;
+  border-radius: 999px;
   cursor: pointer;
   border: 1px solid var(--border);
   background: var(--bg);
   color: var(--fg);
 }
 .popover .actions button:hover { background: var(--bg-subtle); }
+/* chunky charcoal pill: top-lit gradient + inner highlight, arrow nudges on hover */
 .popover .actions button.primary {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: var(--on-accent);
+  font-weight: 600;
+  border: none;
+  color: #fff;
+  background: linear-gradient(180deg, oklch(0.36 0.012 262) 0%, oklch(0.24 0.01 262) 100%);
+  box-shadow: inset 0 1px 0 oklch(1 0 0 / 0.14), 0 1px 3px oklch(0 0 0 / 0.25);
 }
-.popover .actions button.primary:hover { opacity: 0.9; background: var(--accent); }
-.popover .actions button:disabled { opacity: 0.5; cursor: default; }
+.root.dark .popover .actions button.primary {
+  background: linear-gradient(180deg, oklch(0.42 0.014 262) 0%, oklch(0.3 0.012 262) 100%);
+  box-shadow: inset 0 1px 0 oklch(1 0 0 / 0.16), 0 1px 3px oklch(0 0 0 / 0.45);
+}
+.popover .actions button.primary::after {
+  content: "→";
+  display: inline-block;
+  margin-left: 6px;
+  transition: transform 0.15s ease-out;
+}
+.popover .actions button.primary:hover { filter: brightness(1.12); }
+.popover .actions button.primary:hover::after { transform: translateX(2px); }
+.popover .actions button.primary:active { filter: brightness(0.95); }
+.popover .actions button:disabled { opacity: 0.5; cursor: default; filter: none; }
 
 .comment { margin-bottom: 10px; }
 .comment .meta {
