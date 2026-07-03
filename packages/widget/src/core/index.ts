@@ -87,15 +87,27 @@ function captureReviewToken(key: string): string | null {
  * Falls back to prefers-color-scheme when the page never paints a bg.
  */
 function detectTheme(): "light" | "dark" {
+  // Normalize ANY css color (rgb, oklch, lab, named…) by painting it on a
+  // 1x1 canvas and reading the pixel — string-parsing computed colors
+  // breaks on modern color spaces.
+  const ctx = document.createElement("canvas").getContext("2d");
+  const luminanceOf = (color: string): { lum: number; alpha: number } | null => {
+    if (!ctx) return null;
+    ctx.clearRect(0, 0, 1, 1);
+    ctx.fillStyle = color;
+    ctx.fillRect(0, 0, 1, 1);
+    const [r, g, b, a] = ctx.getImageData(0, 0, 1, 1).data;
+    return {
+      lum: (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255,
+      alpha: a / 255,
+    };
+  };
+
   let node: Element | null = document.body;
   while (node) {
-    const bg = getComputedStyle(node).backgroundColor;
-    const m = bg.match(
-      /rgba?\(\s*([\d.]+)[,\s]+([\d.]+)[,\s]+([\d.]+)(?:[,\s/]+([\d.]+))?\s*\)/
-    );
-    if (m && (m[4] === undefined || parseFloat(m[4]) > 0.1)) {
-      const lum = (0.2126 * +m[1] + 0.7152 * +m[2] + 0.0722 * +m[3]) / 255;
-      return lum < 0.45 ? "dark" : "light";
+    const res = luminanceOf(getComputedStyle(node).backgroundColor);
+    if (res && res.alpha > 0.1) {
+      return res.lum < 0.45 ? "dark" : "light";
     }
     node = node.parentElement;
   }
