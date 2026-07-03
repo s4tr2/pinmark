@@ -29,7 +29,17 @@ function parseDomains(raw: string): string[] {
   return raw
     .split(/[\n,]/)
     .map((d) => d.trim().toLowerCase())
-    .filter(Boolean);
+    .filter(Boolean)
+    .map((d) => {
+      // Users paste full URLs; the allowlist matches hostnames. Normalize
+      // "https://foo.vercel.app/some/path" → "foo.vercel.app".
+      if (d.startsWith("*.")) return d; // wildcards pass through
+      try {
+        return new URL(d.includes("://") ? d : `https://${d}`).hostname;
+      } catch {
+        return d;
+      }
+    });
 }
 
 export async function createProject(formData: FormData) {
