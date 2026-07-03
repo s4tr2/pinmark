@@ -326,6 +326,13 @@ button:focus-visible {
   }
 }
 
+/* live counter tucks under the callout, aligned with its text */
+.pin-count {
+  margin: -1.75rem 0 2.25rem;
+  padding-left: 18px;
+  font-size: 0.8125rem;
+}
+
 /* snippet + CTA read as one artifact. One line, always: the box hugs its
    content and may extend past the text column rather than wrap or clip;
    only genuinely narrow viewports scroll. */

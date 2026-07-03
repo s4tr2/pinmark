@@ -1,10 +1,36 @@
 import Link from "next/link";
 import Script from "next/script";
 import { BRAND_NAME, CDN_URL } from "@/lib/config";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 const DEMO_KEY = process.env.NEXT_PUBLIC_DEMO_KEY;
 
-export default function LandingPage() {
+// Refresh the live pin count every minute
+export const revalidate = 60;
+
+async function demoPinCount(): Promise<number | null> {
+  if (!DEMO_KEY) return null;
+  try {
+    const supabase = createAdminClient();
+    const { data: project } = await supabase
+      .from("projects")
+      .select("id")
+      .eq("public_key", DEMO_KEY)
+      .single();
+    if (!project) return null;
+    const { count } = await supabase
+      .from("comments")
+      .select("id", { count: "exact", head: true })
+      .eq("project_id", project.id)
+      .is("parent_id", null);
+    return count ?? null;
+  } catch {
+    return null; // never let the counter break the landing page
+  }
+}
+
+export default async function LandingPage() {
+  const pinCount = await demoPinCount();
   return (
     <main className="landing">
       <nav className="crumbs" style={{ display: "flex", justifyContent: "space-between" }}>
@@ -19,19 +45,29 @@ export default function LandingPage() {
         Pin feedback directly on your prototype.
       </h1>
       <p className="hero-sub">
-        Figma-style comments for anything you can deploy: Vercel, Lovable,
-        Replit, anywhere. One script tag for you; a link and a first name for
-        your reviewers. No accounts, no installs.
+        Prototype feedback arrives as screenshots and &quot;the button feels
+        off.&quot; {BRAND_NAME} pins it to the actual button: on Vercel,
+        Lovable, Replit, anywhere. One script tag for you; a link and a name
+        for reviewers.
       </p>
 
       {DEMO_KEY && (
-        <p className="try-callout">
-          <span className="try-dot" aria-hidden />
-          <span>
-            Live on this page — press <kbd>C</kbd> and click anywhere, or
-            drag to comment on an area.
-          </span>
-        </p>
+        <>
+          <p className="try-callout">
+            <span className="try-dot" aria-hidden />
+            <span>
+              Live on this page — press <kbd>C</kbd> and click anywhere, or
+              drag to comment on an area.
+            </span>
+          </p>
+          {pinCount !== null && pinCount > 0 && (
+            <p className="pin-count muted">
+              {pinCount === 1
+                ? "1 comment pinned on this page so far."
+                : `${pinCount} comments pinned on this page so far.`}
+            </p>
+          )}
+        </>
       )}
 
       <div className="hero-cta">
