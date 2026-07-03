@@ -166,11 +166,21 @@ function mount(cfg: PinmarkGlobal) {
   let hoveredPinId: string | null = null;
 
   // ---- data ----
+  function snapshotOf(list: Comment[], c: Record<string, number>): string {
+    return (
+      list.map((x) => `${x.id}:${x.resolved ? 1 : 0}:${x.body.length}`).join("|") +
+      "#" +
+      JSON.stringify(c)
+    );
+  }
+  let lastSnapshot = "";
+
   async function refresh() {
     try {
       const res = await api.fetchComments(route);
       comments = res.comments;
       counts = res.counts;
+      lastSnapshot = snapshotOf(comments, counts);
       renderAll();
     } catch (e) {
       const code = (e as Error).message;
@@ -479,6 +489,7 @@ function mount(cfg: PinmarkGlobal) {
         myIds.add(created.id);
         comments.push(created);
         counts[route] = (counts[route] ?? 0) + 1;
+        lastSnapshot = snapshotOf(comments, counts);
         popover = null;
         setCommentMode(false); // auto-exit after posting (PRD §4.2)
       } catch (e) {
@@ -530,6 +541,7 @@ function mount(cfg: PinmarkGlobal) {
             try {
               await api.editComment(c.id, getToken(), next);
               c.body = next;
+              lastSnapshot = snapshotOf(comments, counts);
               renderPopover();
             } catch {
               save.disabled = false;
@@ -542,6 +554,7 @@ function mount(cfg: PinmarkGlobal) {
             comments = comments.filter(
               (x) => x.id !== c.id && x.parent_id !== c.id
             );
+            lastSnapshot = snapshotOf(comments, counts);
             if (c.id === pinId) {
               if (!c.parent_id) counts[route] = Math.max(0, (counts[route] ?? 1) - 1);
               popover = null;
@@ -605,6 +618,7 @@ function mount(cfg: PinmarkGlobal) {
         if (nameInput) setName(name);
         rememberMyComment(created.id);
         comments.push(created);
+        lastSnapshot = snapshotOf(comments, counts);
         renderPopover(); // re-render thread with new reply
       } catch (e) {
         send.disabled = false;
@@ -815,6 +829,48 @@ function mount(cfg: PinmarkGlobal) {
   window.addEventListener("popstate", onNavigation);
   window.addEventListener("hashchange", onNavigation);
   window.addEventListener(NAV_EVENT, onNavigation);
+
+  // ---- live updates (PRD §5.5, meets the "visible within 5s" criterion) ----
+  // Visibility-gated polling through the guarded API instead of a direct
+  // Supabase websocket: the security model has no anon policies, so guests
+  // must not talk to the database directly. Transport can be swapped for
+  // broadcast channels later without touching this model.
+  const POLL_MS = 4000;
+
+  function applyRemoteUpdate(next: { comments: Comment[]; counts: Record<string, number> }) {
+    comments = next.comments;
+    counts = next.counts;
+    resolveAllPins();
+    renderPins();
+
+    // Never clobber in-progress input: skip UI-layer rebuilds while the
+    // composer is open, comment mode is armed, or the user is typing.
+    const typingInWidget =
+      shadow.activeElement?.tagName === "INPUT" ||
+      shadow.activeElement?.tagName === "TEXTAREA";
+    if (commentMode || popover?.kind === "composer" || typingInWidget) return;
+
+    renderBubble();
+    if (popover?.kind === "thread") renderPopover(); // live replies/resolves
+  }
+
+  async function pollTick() {
+    if (document.visibilityState !== "visible") return;
+    try {
+      const res = await api.fetchComments(route);
+      const next = snapshotOf(res.comments, res.counts);
+      if (next !== lastSnapshot) {
+        lastSnapshot = next;
+        applyRemoteUpdate(res);
+      }
+    } catch {
+      /* transient failures are fine; next tick retries */
+    }
+  }
+  setInterval(pollTick, POLL_MS);
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") pollTick(); // catch up fast
+  });
 
   // ---- DOM mutation re-resolution (PRD §5.3, debounced 250 ms) ----
   // Re-resolves when pins are degraded (anchor element missing) or when the

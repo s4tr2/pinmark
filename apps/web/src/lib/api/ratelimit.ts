@@ -1,9 +1,11 @@
 import type { NextRequest } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 
-// PRD §6.1: per IP + key — 20 comments/hour, 120 reads/min
+// PRD §6.1 baseline (20 comments/hr) with the read ceiling raised for live
+// polling: widgets poll every 4s while visible (15/min per tab), so 240/min
+// per IP+key comfortably covers an office NAT with a dozen open tabs.
 const LIMITS = {
-  read: { max: 120, windowSeconds: 60 },
+  read: { max: 240, windowSeconds: 60 },
   write: { max: 20, windowSeconds: 3600 },
 } as const;
 
