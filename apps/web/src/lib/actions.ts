@@ -185,6 +185,28 @@ export async function resolveThread(formData: FormData) {
   revalidatePath(`/p/${projectId}`);
 }
 
+export async function resolveAllThreads(formData: FormData) {
+  const supabase = createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+
+  const projectId = String(formData.get("project_id"));
+
+  // RLS restricts to the owner's own project; top-level pins only
+  const { error } = await supabase
+    .from("comments")
+    .update({ resolved: true })
+    .eq("project_id", projectId)
+    .is("parent_id", null)
+    .eq("resolved", false);
+
+  if (error)
+    redirect(`/p/${projectId}?error=${encodeURIComponent(error.message)}`);
+  revalidatePath(`/p/${projectId}`);
+}
+
 export async function deleteComment(formData: FormData) {
   const supabase = createClient();
   const {

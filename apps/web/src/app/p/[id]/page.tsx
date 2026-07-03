@@ -7,6 +7,7 @@ import {
   regeneratePublicKey,
   regenerateReviewToken,
   replyAsOwner,
+  resolveAllThreads,
   resolveThread,
   updateAccessMode,
   updateDomains,
@@ -238,9 +239,20 @@ export default async function ProjectPage({
 
       <div className="card">
         <h2 style={{ marginTop: 0, fontSize: "1.125rem" }}>Threads</h2>
-        <p className="row">
-          <Link href={`/p/${project.id}?filter=open`}>Open</Link>
-          <Link href={`/p/${project.id}?filter=resolved`}>Resolved</Link>
+        <p className="row" style={{ justifyContent: "space-between" }}>
+          <span className="row">
+            <Link href={`/p/${project.id}?filter=open`}>Open</Link>
+            <Link href={`/p/${project.id}?filter=resolved`}>Resolved</Link>
+          </span>
+          {filter === "open" &&
+            (comments ?? []).some((c) => !c.parent_id && !c.resolved) && (
+              <form action={resolveAllThreads}>
+                <input type="hidden" name="project_id" value={project.id} />
+                <button className="secondary" style={{ fontSize: "0.8125rem" }}>
+                  Resolve all open threads
+                </button>
+              </form>
+            )}
         </p>
         <Threads
           comments={comments ?? []}
