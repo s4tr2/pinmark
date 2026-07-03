@@ -166,7 +166,7 @@ export const CSS = `
 /* ---- region (area comments) ---- */
 .region {
   position: fixed;
-  border: 1.5px solid var(--accent);
+  border: 1.5px dashed var(--accent);
   border-radius: 6px;
   background: var(--accent-soft);
   pointer-events: none;
