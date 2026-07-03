@@ -179,37 +179,64 @@ textarea::placeholder {
 
 /* ---- buttons ---- */
 
+/* chunky charcoal pill: top-lit gradient + inner highlight */
 button {
   font: inherit;
   font-size: 0.875rem;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
-  border: 1px solid transparent;
-  border-radius: 6px;
-  padding: 6px 14px;
-  background: var(--fg);
-  color: var(--bg);
-  transition: opacity 0.15s ease-out;
+  border: none;
+  border-radius: 999px;
+  padding: 8px 18px;
+  color: #fff;
+  background: linear-gradient(
+    180deg,
+    oklch(0.36 0.012 262) 0%,
+    oklch(0.24 0.01 262) 100%
+  );
+  box-shadow:
+    inset 0 1px 0 oklch(1 0 0 / 0.14),
+    0 1px 3px oklch(0 0 0 / 0.25);
+  transition: filter 0.15s ease-out;
 }
 
 button:hover {
-  opacity: 0.85;
+  filter: brightness(1.12);
+}
+
+button:active {
+  filter: brightness(0.95);
 }
 
 button.secondary {
   background: var(--bg);
   color: var(--fg);
-  border-color: var(--border-strong);
+  font-weight: 500;
+  border: 1px solid var(--border-strong);
+  box-shadow: none;
 }
 
 button.secondary:hover {
-  opacity: 1;
+  filter: none;
   background: var(--bg-subtle);
 }
 
 button:disabled {
   opacity: 0.45;
   cursor: default;
+  filter: none;
+}
+
+/* arrow only on the landing CTA */
+.hero-cta button::after {
+  content: "→";
+  display: inline-block;
+  margin-left: 7px;
+  transition: transform 0.15s ease-out;
+}
+
+.hero-cta button:hover::after {
+  transform: translateX(2px);
 }
 
 button:focus-visible {
