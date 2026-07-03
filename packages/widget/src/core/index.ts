@@ -6,7 +6,7 @@ import {
   resolveRegion,
   type ResolvedPosition,
 } from "./anchor";
-import { CSS } from "./styles";
+import { BUBBLE_ICON, CSS } from "./styles";
 import {
   clearReviewToken,
   getMyCommentIds,
@@ -81,6 +81,29 @@ function captureReviewToken(key: string): string | null {
   return getReviewToken(key);
 }
 
+/**
+ * Theme from the host page's own background, not the OS: a dark popover on
+ * a light page (or vice versa) is what makes an embed feel bolted-on.
+ * Falls back to prefers-color-scheme when the page never paints a bg.
+ */
+function detectTheme(): "light" | "dark" {
+  let node: Element | null = document.body;
+  while (node) {
+    const bg = getComputedStyle(node).backgroundColor;
+    const m = bg.match(
+      /rgba?\(\s*([\d.]+)[,\s]+([\d.]+)[,\s]+([\d.]+)(?:[,\s/]+([\d.]+))?\s*\)/
+    );
+    if (m && (m[4] === undefined || parseFloat(m[4]) > 0.1)) {
+      const lum = (0.2126 * +m[1] + 0.7152 * +m[2] + 0.0722 * +m[3]) / 255;
+      return lum < 0.45 ? "dark" : "light";
+    }
+    node = node.parentElement;
+  }
+  return matchMedia("(prefers-color-scheme: dark)").matches
+    ? "dark"
+    : "light";
+}
+
 function mount(cfg: PinmarkGlobal) {
   const reviewToken = captureReviewToken(cfg.key);
   const api = new Api(cfg.base, cfg.key, reviewToken);
@@ -99,7 +122,7 @@ function mount(cfg: PinmarkGlobal) {
   style.textContent = CSS;
   shadow.appendChild(style);
 
-  const root = el("div", "root");
+  const root = el("div", `root ${detectTheme()}`);
   root.style.pointerEvents = "none";
   shadow.appendChild(root);
   document.body.appendChild(host);
@@ -319,7 +342,8 @@ function mount(cfg: PinmarkGlobal) {
       return;
     }
 
-    const bubble = el("button", "bubble", "💬");
+    const bubble = el("button", "bubble");
+    bubble.innerHTML = BUBBLE_ICON; // static markup constant, never user content
     bubble.setAttribute("aria-label", "Comments menu");
     bubble.addEventListener("click", (e) => {
       e.stopPropagation();
