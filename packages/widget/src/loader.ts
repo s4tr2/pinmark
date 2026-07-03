@@ -7,6 +7,8 @@ interface PinmarkGlobal {
   key: string;
   base: string;
   mounted?: boolean;
+  // Observable state for e2e tests (set by the core; see core/index.ts)
+  pins?: number;
 }
 
 declare global {
