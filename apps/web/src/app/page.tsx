@@ -2,6 +2,7 @@ import Link from "next/link";
 import Script from "next/script";
 import { BRAND_NAME, CDN_URL } from "@/lib/config";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { TactileClicks } from "./tactile-clicks";
 
 const DEMO_KEY = process.env.NEXT_PUBLIC_DEMO_KEY;
 
@@ -33,6 +34,7 @@ export default async function LandingPage() {
   const pinCount = await demoPinCount();
   return (
     <main className="landing">
+      <TactileClicks />
       <nav className="crumbs" style={{ display: "flex", justifyContent: "space-between" }}>
         <span>{BRAND_NAME}</span>
         <span>

@@ -206,6 +206,7 @@ button:hover {
 
 button:active {
   filter: brightness(0.95);
+  transform: translateY(1px) scale(0.99);
 }
 
 button.secondary {
