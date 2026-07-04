@@ -306,26 +306,6 @@ main.landing {
   position: relative;
 }
 
-/* a drafting sheet, not a lattice: one asymmetric tile with a hierarchy
-   of marks — dots, crosses, a registration mark, one indigo touch — so
-   placement reads as intent rather than repetition. */
-main.landing::before {
-  content: "";
-  position: absolute;
-  inset: -20px -25vw auto;
-  height: 760px;
-  z-index: -1;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='360'%3E%3Cg fill='%23e0e2ea'%3E%3Ccircle cx='30' cy='52' r='1.2'/%3E%3Ccircle cx='146' cy='24' r='1.2'/%3E%3Ccircle cx='258' cy='88' r='1.2'/%3E%3Ccircle cx='356' cy='40' r='1.2'/%3E%3Ccircle cx='84' cy='150' r='1.2'/%3E%3Ccircle cx='208' cy='180' r='1.2'/%3E%3Ccircle cx='330' cy='208' r='1.2'/%3E%3Ccircle cx='52' cy='268' r='1.2'/%3E%3Ccircle cx='172' cy='300' r='1.2'/%3E%3Ccircle cx='298' cy='320' r='1.2'/%3E%3Ccircle cx='382' cy='276' r='1.2'/%3E%3Ccircle cx='118' cy='332' r='1.2'/%3E%3C/g%3E%3Cg stroke='%23d3d5e0' stroke-width='1' fill='none'%3E%3Cpath d='M222 55v10M217 60h10'/%3E%3Cpath d='M66 203v10M61 208h10'/%3E%3Cpath d='M350 136v8M346 140h8'/%3E%3C/g%3E%3Cg stroke='%23ced0dc' stroke-width='1' fill='none'%3E%3Ccircle cx='290' cy='250' r='8'/%3E%3Cpath d='M290 236v28M276 250h28'/%3E%3C/g%3E%3Cpath d='M150 105v10M145 110h10' stroke='%236c63d2' stroke-width='1' opacity='0.55' fill='none'/%3E%3C/svg%3E");
-  background-size: 400px 360px;
-  -webkit-mask-image: radial-gradient(
-    95% 95% at 50% 6%,
-    black 25%,
-    transparent 88%
-  );
-  mask-image: radial-gradient(95% 95% at 50% 6%, black 25%, transparent 88%);
-  pointer-events: none;
-}
-
 .landing .hero-title {
   /* Fraunces: variable display serif — softer tracking than the sans */
   font-family: var(--font-fraunces), Georgia, "Times New Roman", serif;
@@ -335,6 +315,57 @@ main.landing::before {
   line-height: 1.08;
   margin: 4.5rem 0 1.25rem;
   max-width: 16ch;
+}
+
+/* ---- dev font picker overrides: data-hero-font on <html> swaps the
+   display voice everywhere it appears; per-font metric tuning ---- */
+[data-hero-font="gloock"] .hero-title,
+[data-hero-font="gloock"] .landing-h2,
+[data-hero-font="gloock"] .step-num,
+[data-hero-font="gloock"] .footer-mark {
+  font-family: var(--font-gloock), Georgia, serif;
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+[data-hero-font="young"] .hero-title,
+[data-hero-font="young"] .landing-h2,
+[data-hero-font="young"] .step-num,
+[data-hero-font="young"] .footer-mark {
+  font-family: var(--font-young), Georgia, serif;
+  font-weight: 400;
+  letter-spacing: -0.005em;
+}
+
+[data-hero-font="newsreader"] .hero-title,
+[data-hero-font="newsreader"] .landing-h2,
+[data-hero-font="newsreader"] .step-num,
+[data-hero-font="newsreader"] .footer-mark {
+  font-family: var(--font-newsreader), Georgia, serif;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+[data-hero-font="bricolage"] .hero-title,
+[data-hero-font="bricolage"] .landing-h2,
+[data-hero-font="bricolage"] .step-num,
+[data-hero-font="bricolage"] .footer-mark {
+  font-family: var(--font-bricolage), system-ui, sans-serif;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+}
+
+[data-hero-font="bricolage"] .hero-title {
+  font-size: clamp(2.5rem, 6vw, 3.4rem); /* grotesque sets wider */
+}
+
+[data-hero-font="hedvig"] .hero-title,
+[data-hero-font="hedvig"] .landing-h2,
+[data-hero-font="hedvig"] .step-num,
+[data-hero-font="hedvig"] .footer-mark {
+  font-family: var(--font-hedvig), Georgia, serif;
+  font-weight: 400;
+  letter-spacing: 0;
 }
 
 /* ---- landing sections: serif voice, generous air, no rules ---- */
@@ -422,10 +453,6 @@ main.landing::before {
   animation-delay: 230ms;
 }
 
-.landing-reveal-6 {
-  animation-delay: 280ms;
-}
-
 @keyframes landing-enter {
   from {
     opacity: 0;
@@ -447,7 +474,7 @@ main.landing::before {
   align-items: baseline;
   gap: 10px;
   font-size: 0.9375rem;
-  margin: 1.75rem 0 2.25rem;
+  margin: 1.75rem 0 0;
 }
 
 .try-dot {
@@ -459,20 +486,8 @@ main.landing::before {
   align-self: center;
 }
 
-/* live counter tucks under the callout, aligned with its text */
-.pin-count {
-  margin: -1.75rem 0 2.25rem;
-  padding-left: 18px;
-  font-size: 0.8125rem;
-}
-
-/* snippet + CTA read as one artifact. One line, always: the box hugs its
-   content and may extend past the text column rather than wrap or clip;
-   only genuinely narrow viewports scroll. */
-.hero-cta .snippet {
-  margin-bottom: 0;
-  width: fit-content;
-  max-width: calc(100vw - 48px);
+.hero-actions {
+  margin: 0;
 }
 
 .hero-cta a.muted:hover {

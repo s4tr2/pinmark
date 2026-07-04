@@ -1,94 +1,53 @@
 import Link from "next/link";
 import Script from "next/script";
 import { BRAND_NAME, CDN_URL } from "@/lib/config";
-import { createAdminClient } from "@/lib/supabase/admin";
 import { TactileClicks } from "./tactile-clicks";
 
 const DEMO_KEY = process.env.NEXT_PUBLIC_DEMO_KEY;
-
-// Refresh the live pin count every minute
-export const revalidate = 60;
-
-async function demoPinCount(): Promise<number | null> {
-  if (!DEMO_KEY) return null;
-  try {
-    const supabase = createAdminClient();
-    const { data: project } = await supabase
-      .from("projects")
-      .select("id")
-      .eq("public_key", DEMO_KEY)
-      .single();
-    if (!project) return null;
-    const { count } = await supabase
-      .from("comments")
-      .select("id", { count: "exact", head: true })
-      .eq("project_id", project.id)
-      .is("parent_id", null);
-    return count ?? null;
-  } catch {
-    return null; // never let the counter break the landing page
-  }
-}
 
 // No decorative pins: the live widget's real pins — placed by actual
 // visitors — are the "page under review" concept, fulfilled honestly.
 // Fake pins would collide with real numbering (and did).
 
-export default async function LandingPage() {
-  const pinCount = await demoPinCount();
+export default function LandingPage() {
   return (
     <main className="landing">
       <TactileClicks />
       <nav className="crumbs landing-nav landing-reveal landing-reveal-1">
         <span>{BRAND_NAME}</span>
         <span>
-          <Link href="/docs">Install guide</Link> ·{" "}
+          <Link href="/docs">Docs</Link> ·{" "}
           <Link href="/login">Sign in</Link>
         </span>
       </nav>
 
       <h1 className="hero-title landing-reveal landing-reveal-2">
-        Pin feedback directly on your prototype.
+        Pin feedback to your prototype.
       </h1>
       <p className="hero-sub landing-reveal landing-reveal-3">
-        Prototype feedback arrives as screenshots and &quot;the button feels
-        off.&quot; {BRAND_NAME} pins it to the actual button: on Vercel,
-        Lovable, Replit, anywhere. One script tag for you; a link and a name
-        for reviewers.
+        Add one script, then let reviewers comment on the exact UI—no accounts
+        or screenshots.
       </p>
 
-      {DEMO_KEY && (
-        <>
-          <p className="try-callout landing-reveal landing-reveal-4">
-            <span className="try-dot" aria-hidden />
-            <span>
-              Live on this page — press <kbd>C</kbd> and click anywhere, or
-              drag to comment on an area.
-            </span>
-          </p>
-          {pinCount !== null && pinCount > 0 && (
-            <p className="pin-count muted landing-reveal landing-reveal-4">
-              {pinCount === 1
-                ? "1 comment pinned on this page so far."
-                : `${pinCount} comments pinned on this page so far.`}
-            </p>
-          )}
-        </>
-      )}
-
-      <div className="hero-cta landing-reveal landing-reveal-5">
-        {/* rhetorical, not copyable — the real key comes from the dashboard,
-            so show the shape of the install, not the boilerplate */}
-        <code className="snippet">{`<script async src="${CDN_URL}/w.js" data-pinmark="…">`}</code>
-        <p className="row" style={{ marginTop: 10 }}>
+      <div className="hero-cta landing-reveal landing-reveal-4">
+        <p className="row hero-actions">
           <Link href="/login">
             <button type="button">Get your snippet</button>
           </Link>
           <Link href="/docs" className="muted">
-            or read the install guide
+            Install guide
           </Link>
         </p>
       </div>
+
+      {DEMO_KEY && (
+        <p className="try-callout landing-reveal landing-reveal-5">
+          <span className="try-dot" aria-hidden />
+          <span>
+            Try it here — press <kbd>C</kbd>, then click or drag.
+          </span>
+        </p>
+      )}
 
       <section className="landing-section">
         <h2 className="landing-h2">How it works</h2>
