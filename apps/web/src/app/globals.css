@@ -300,72 +300,49 @@ button:focus-visible {
   text-decoration: none;
 }
 
-/* ---- landing: the page IS the canvas (a prototype under review) ---- */
+/* ---- landing: the page IS the canvas (a prototype under review) ----
+   The landing lives in a warm-paper world for the letterpress voice;
+   dashboard and docs keep the cool product tokens. */
+
+body:has(main.landing) {
+  --bg: oklch(0.977 0.008 85);
+  --bg-subtle: oklch(0.95 0.012 85);
+  --fg: oklch(0.26 0.02 60);
+  --muted: oklch(0.49 0.02 70);
+  --border: oklch(0.9 0.012 85);
+  --border-strong: oklch(0.83 0.015 85);
+  --accent: oklch(0.58 0.17 40); /* vermilion — the C-keycap warmth */
+}
+
+body:has(main.landing) ::selection {
+  background: oklch(0.58 0.17 40 / 0.22);
+}
+
+/* warm ink pills on paper */
+body:has(main.landing) button {
+  background: linear-gradient(
+    180deg,
+    oklch(0.38 0.03 50) 0%,
+    oklch(0.26 0.025 50) 100%
+  );
+  box-shadow:
+    inset 0 1px 0 oklch(1 0 0 / 0.16),
+    0 1px 3px oklch(0.2 0.05 50 / 0.3);
+}
 
 main.landing {
   position: relative;
 }
 
 .landing .hero-title {
-  /* Fraunces: variable display serif — softer tracking than the sans */
-  font-family: var(--font-fraunces), Georgia, "Times New Roman", serif;
-  font-size: clamp(2.75rem, 6.5vw, 3.75rem);
-  font-weight: 550;
-  letter-spacing: -0.015em;
-  line-height: 1.08;
-  margin: 4.5rem 0 1.25rem;
-  max-width: 16ch;
-}
-
-/* ---- dev font picker overrides: data-hero-font on <html> swaps the
-   display voice everywhere it appears; per-font metric tuning ---- */
-[data-hero-font="gloock"] .hero-title,
-[data-hero-font="gloock"] .landing-h2,
-[data-hero-font="gloock"] .step-num,
-[data-hero-font="gloock"] .footer-mark {
-  font-family: var(--font-gloock), Georgia, serif;
-  font-weight: 400;
-  letter-spacing: 0;
-}
-
-[data-hero-font="young"] .hero-title,
-[data-hero-font="young"] .landing-h2,
-[data-hero-font="young"] .step-num,
-[data-hero-font="young"] .footer-mark {
-  font-family: var(--font-young), Georgia, serif;
+  /* Young Serif ships one weight; the chunk IS the boldness */
+  font-family: var(--font-display), Georgia, serif;
+  font-size: clamp(2.6rem, 6vw, 3.5rem);
   font-weight: 400;
   letter-spacing: -0.005em;
-}
-
-[data-hero-font="newsreader"] .hero-title,
-[data-hero-font="newsreader"] .landing-h2,
-[data-hero-font="newsreader"] .step-num,
-[data-hero-font="newsreader"] .footer-mark {
-  font-family: var(--font-newsreader), Georgia, serif;
-  font-weight: 500;
-  letter-spacing: -0.01em;
-}
-
-[data-hero-font="bricolage"] .hero-title,
-[data-hero-font="bricolage"] .landing-h2,
-[data-hero-font="bricolage"] .step-num,
-[data-hero-font="bricolage"] .footer-mark {
-  font-family: var(--font-bricolage), system-ui, sans-serif;
-  font-weight: 600;
-  letter-spacing: -0.025em;
-}
-
-[data-hero-font="bricolage"] .hero-title {
-  font-size: clamp(2.5rem, 6vw, 3.4rem); /* grotesque sets wider */
-}
-
-[data-hero-font="hedvig"] .hero-title,
-[data-hero-font="hedvig"] .landing-h2,
-[data-hero-font="hedvig"] .step-num,
-[data-hero-font="hedvig"] .footer-mark {
-  font-family: var(--font-hedvig), Georgia, serif;
-  font-weight: 400;
-  letter-spacing: 0;
+  line-height: 1.1;
+  margin: 4.5rem 0 1.25rem;
+  max-width: 16ch;
 }
 
 /* ---- landing sections: serif voice, generous air, no rules ---- */
@@ -375,10 +352,10 @@ main.landing {
 }
 
 .landing-h2 {
-  font-family: var(--font-fraunces), Georgia, serif;
-  font-size: 1.4375rem;
-  font-weight: 550;
-  letter-spacing: -0.008em;
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 1.375rem;
+  font-weight: 400;
+  letter-spacing: -0.004em;
   margin: 0 0 1rem;
 }
 
@@ -395,10 +372,10 @@ main.landing {
 }
 
 .step-num {
-  font-family: var(--font-fraunces), Georgia, serif;
+  font-family: var(--font-display), Georgia, serif;
   font-size: 1.75rem;
-  font-weight: 550;
-  color: oklch(0.78 0.02 262);
+  font-weight: 400;
+  color: oklch(0.74 0.08 45); /* warm numeral, quiet accent presence */
   line-height: 1;
 }
 
@@ -419,9 +396,9 @@ main.landing {
 }
 
 .footer-mark {
-  font-family: var(--font-fraunces), Georgia, serif;
+  font-family: var(--font-display), Georgia, serif;
   font-size: 1.125rem;
-  font-weight: 550;
+  font-weight: 400;
 }
 
 .landing-nav {
