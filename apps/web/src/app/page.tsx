@@ -95,7 +95,6 @@ export default async function LandingPage() {
       )}
 
       <div className="hero-cta landing-reveal landing-reveal-5">
-        <span className="tape tape-br" aria-hidden="true" />
         <code className="snippet">{`<script async src="${CDN_URL}/w.js" data-pinmark="pk_live_YOUR_KEY"></script>`}</code>
         <p className="row" style={{ marginTop: 10 }}>
           <Link href="/login">
