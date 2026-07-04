@@ -77,7 +77,9 @@ export default async function LandingPage() {
       )}
 
       <div className="hero-cta landing-reveal landing-reveal-5">
-        <code className="snippet">{`<script async src="${CDN_URL}/w.js" data-pinmark="pk_live_YOUR_KEY"></script>`}</code>
+        {/* rhetorical, not copyable — the real key comes from the dashboard,
+            so show the shape of the install, not the boilerplate */}
+        <code className="snippet">{`<script async src="${CDN_URL}/w.js" data-pinmark="…">`}</code>
         <p className="row" style={{ marginTop: 10 }}>
           <Link href="/login">
             <button type="button">Get your snippet</button>
