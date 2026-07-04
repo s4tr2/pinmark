@@ -342,6 +342,34 @@ main.landing::before {
   color: var(--accent);
 }
 
+/* the C key, held: the shortcut made physical. multiply melts the photo's
+   white ground into the page; no clipping needed */
+.press-c {
+  position: absolute;
+  top: 44px;
+  right: -252px;
+  width: 240px;
+  height: auto;
+  display: none;
+  mix-blend-mode: multiply;
+  opacity: 0;
+  animation: margin-pin-in 600ms var(--ease-out) 450ms forwards;
+  pointer-events: none;
+}
+
+@media (min-width: 1120px) {
+  .press-c {
+    display: block;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .press-c {
+    animation: none;
+    opacity: 1;
+  }
+}
+
 /* ---- margin pins: the page reviewed in its own margins ---- */
 
 .margin-pin {

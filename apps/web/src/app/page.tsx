@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import Script from "next/script";
 import { BRAND_NAME, CDN_URL } from "@/lib/config";
@@ -74,6 +75,15 @@ export default async function LandingPage() {
           <Link href="/login">Sign in</Link>
         </span>
       </nav>
+
+      <Image
+        src="/press-c.png"
+        alt="A hand holding a single orange keyboard key labeled C — the Pinmark comment shortcut"
+        width={680}
+        height={850}
+        className="press-c"
+        priority={false}
+      />
 
       <MarginPin
         n={1}
