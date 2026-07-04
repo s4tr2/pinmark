@@ -306,23 +306,17 @@ main.landing {
   position: relative;
 }
 
-/* drafting marks, not a grid: sparse alignment crosses at wide intervals,
-   one in faint indigo per cluster — the canvas of a precision tool. */
+/* a drafting sheet, not a lattice: one asymmetric tile with a hierarchy
+   of marks — dots, crosses, a registration mark, one indigo touch — so
+   placement reads as intent rather than repetition. */
 main.landing::before {
   content: "";
   position: absolute;
   inset: -20px -25vw auto;
-  height: 720px;
+  height: 760px;
   z-index: -1;
-  background-image:
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='264' height='264'%3E%3Cpath d='M66 171v10M61 176h10' stroke='%236c63d2' stroke-width='1' opacity='0.5'/%3E%3C/svg%3E"),
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='88' height='88'%3E%3Cpath d='M44 39v10M39 44h10' stroke='%23d7d8e2' stroke-width='1'/%3E%3C/svg%3E");
-  background-size:
-    264px 264px,
-    88px 88px;
-  background-position:
-    22px 10px,
-    0 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='360'%3E%3Cg fill='%23e0e2ea'%3E%3Ccircle cx='30' cy='52' r='1.2'/%3E%3Ccircle cx='146' cy='24' r='1.2'/%3E%3Ccircle cx='258' cy='88' r='1.2'/%3E%3Ccircle cx='356' cy='40' r='1.2'/%3E%3Ccircle cx='84' cy='150' r='1.2'/%3E%3Ccircle cx='208' cy='180' r='1.2'/%3E%3Ccircle cx='330' cy='208' r='1.2'/%3E%3Ccircle cx='52' cy='268' r='1.2'/%3E%3Ccircle cx='172' cy='300' r='1.2'/%3E%3Ccircle cx='298' cy='320' r='1.2'/%3E%3Ccircle cx='382' cy='276' r='1.2'/%3E%3Ccircle cx='118' cy='332' r='1.2'/%3E%3C/g%3E%3Cg stroke='%23d3d5e0' stroke-width='1' fill='none'%3E%3Cpath d='M222 55v10M217 60h10'/%3E%3Cpath d='M66 203v10M61 208h10'/%3E%3Cpath d='M350 136v8M346 140h8'/%3E%3C/g%3E%3Cg stroke='%23ced0dc' stroke-width='1' fill='none'%3E%3Ccircle cx='290' cy='250' r='8'/%3E%3Cpath d='M290 236v28M276 250h28'/%3E%3C/g%3E%3Cpath d='M150 105v10M145 110h10' stroke='%236c63d2' stroke-width='1' opacity='0.55' fill='none'/%3E%3C/svg%3E");
+  background-size: 400px 360px;
   -webkit-mask-image: radial-gradient(
     95% 95% at 50% 6%,
     black 25%,
