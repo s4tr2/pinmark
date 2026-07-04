@@ -381,18 +381,10 @@ main.landing::before {
   }
 }
 
-/* the snippet wears an area-comment: dashed accent region, like a drag */
+/* no fake region here: dashed-accent selection is the widget's language,
+   and product vocabulary must only ever mean the product */
 .hero-cta {
   position: relative;
-}
-
-.hero-cta::before {
-  content: "";
-  position: absolute;
-  inset: -10px -12px;
-  border: 1.5px dashed oklch(0.5 0.17 262 / 0.45);
-  border-radius: 12px;
-  pointer-events: none;
 }
 
 /* ---- review-desk artifacts: warm paper vs cool pixels ----
@@ -445,10 +437,12 @@ main.landing::before {
   pointer-events: none;
 }
 
+/* one strip across the snippet's top-right corner, where tape would be */
 .tape-br {
-  right: -34px;
-  bottom: -18px;
-  transform: rotate(-38deg);
+  top: -9px;
+  right: -20px;
+  transform: rotate(-35deg);
+  z-index: 1;
 }
 
 /* the before-world: a rejected sticky note, below the fold, out of the
