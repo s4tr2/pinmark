@@ -370,77 +370,6 @@ main.landing::before {
   }
 }
 
-/* ---- margin pins: the page reviewed in its own margins ---- */
-
-.margin-pin {
-  position: absolute;
-  z-index: 2;
-  display: none; /* revealed on wide viewports only */
-  opacity: 0;
-  animation: margin-pin-in 500ms var(--ease-out) forwards;
-  pointer-events: none;
-}
-
-.mp-pin {
-  display: grid;
-  width: 26px;
-  height: 26px;
-  place-items: center;
-  border: 1px solid var(--border);
-  border-radius: 50% 50% 50% 4px;
-  background: var(--bg);
-  box-shadow: 0 4px 16px oklch(0.22 0.01 262 / 0.14);
-  font-size: 0.6875rem;
-  font-weight: 650;
-}
-
-.mp-card {
-  display: block;
-  width: 168px;
-  margin: 7px 0 0 18px;
-  padding: 8px 11px 9px;
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  background: var(--bg);
-  box-shadow: 0 8px 24px oklch(0.22 0.01 262 / 0.1);
-  font-size: 0.75rem;
-  line-height: 1.45;
-}
-
-.mp-meta {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-bottom: 1px;
-  color: var(--muted);
-  font-size: 0.6563rem;
-  font-weight: 500;
-}
-
-.mp-check {
-  margin-left: auto;
-  color: oklch(0.62 0.17 145);
-  font-weight: 700;
-}
-
-.margin-pin-1 {
-  top: 96px;
-  left: -196px;
-  animation-delay: 700ms;
-}
-
-.margin-pin-2 {
-  top: 434px;
-  right: -204px;
-  animation-delay: 950ms;
-}
-
-.margin-pin-3 {
-  top: 780px;
-  left: -186px;
-  animation-delay: 1200ms;
-}
-
 @keyframes margin-pin-in {
   from {
     opacity: 0;
@@ -449,12 +378,6 @@ main.landing::before {
   to {
     opacity: 1;
     transform: none;
-  }
-}
-
-@media (min-width: 1120px) {
-  .margin-pin {
-    display: block;
   }
 }
 
@@ -522,24 +445,19 @@ main.landing::before {
   pointer-events: none;
 }
 
-.tape-tl {
-  top: -18px;
-  left: -34px;
-  transform: rotate(-38deg);
-}
-
 .tape-br {
   right: -34px;
   bottom: -18px;
   transform: rotate(-38deg);
 }
 
-/* the before-world: a rejected sticky note in the margin */
+/* the before-world: a rejected sticky note, below the fold, out of the
+   live pins' way */
 .sticky-note {
   position: absolute;
-  top: 318px;
-  left: -216px;
-  width: 158px;
+  top: 960px;
+  right: -206px;
+  width: 148px;
   padding: 30px 14px 16px;
   background: linear-gradient(
     180deg,
@@ -814,7 +732,6 @@ main.landing::before {
     animation: none;
   }
 
-  .margin-pin,
   .sticky-note,
   .specimen {
     animation: none;

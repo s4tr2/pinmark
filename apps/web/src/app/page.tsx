@@ -31,37 +31,9 @@ async function demoPinCount(): Promise<number | null> {
   }
 }
 
-/**
- * Decorative margin pins: the landing page styled as a prototype under
- * review. Same visual language as the real widget's pins, so when the live
- * widget's pins appear alongside them, fiction and product are seamless.
- */
-function MarginPin({
-  n,
-  name,
-  quip,
-  check,
-  className,
-}: {
-  n: number;
-  name: string;
-  quip: string;
-  check?: boolean;
-  className: string;
-}) {
-  return (
-    <div className={`margin-pin ${className}`} aria-hidden="true">
-      <span className="mp-pin">{n}</span>
-      <span className="mp-card">
-        <span className="mp-meta">
-          {name}
-          {check && <span className="mp-check">✓</span>}
-        </span>
-        {quip}
-      </span>
-    </div>
-  );
-}
+// No decorative pins: the live widget's real pins — placed by actual
+// visitors — are the "page under review" concept, fulfilled honestly.
+// Fake pins would collide with real numbering (and did).
 
 export default async function LandingPage() {
   const pinCount = await demoPinCount();
@@ -83,26 +55,6 @@ export default async function LandingPage() {
         height={850}
         className="press-c"
         priority={false}
-      />
-
-      <MarginPin
-        n={1}
-        name="Maya · 2m"
-        quip="this headline ships."
-        className="margin-pin-1"
-      />
-      <MarginPin
-        n={2}
-        name="Arjun · just now"
-        quip="wait — one script tag?"
-        className="margin-pin-2"
-      />
-      <MarginPin
-        n={3}
-        name="Sam · 1h"
-        quip="resolved before standup."
-        check
-        className="margin-pin-3"
       />
 
       <div className="sticky-note" aria-hidden="true">
@@ -158,7 +110,6 @@ export default async function LandingPage() {
       )}
 
       <div className="hero-cta landing-reveal landing-reveal-5">
-        <span className="tape tape-tl" aria-hidden="true" />
         <span className="tape tape-br" aria-hidden="true" />
         <code className="snippet">{`<script async src="${CDN_URL}/w.js" data-pinmark="pk_live_YOUR_KEY"></script>`}</code>
         <p className="row" style={{ marginTop: 10 }}>
