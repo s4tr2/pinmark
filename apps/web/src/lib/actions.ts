@@ -97,29 +97,6 @@ export async function updateAccessMode(formData: FormData) {
   redirect(`/p/${id}?saved=1`);
 }
 
-export async function updateAvatarStyle(formData: FormData) {
-  const supabase = createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
-
-  const id = String(formData.get("id"));
-  const style = String(formData.get("avatar_style"));
-  if (style !== "initial" && style !== "gradient") {
-    redirect(`/p/${id}?error=Invalid+avatar+style`);
-  }
-
-  const { error } = await supabase
-    .from("projects")
-    .update({ avatar_style: style })
-    .eq("id", id);
-
-  if (error) redirect(`/p/${id}?error=${encodeURIComponent(error.message)}`);
-  revalidatePath(`/p/${id}`);
-  redirect(`/p/${id}?saved=1`);
-}
-
 export async function regenerateReviewToken(formData: FormData) {
   const supabase = createClient();
   const {

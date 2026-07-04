@@ -1,5 +1,4 @@
 import { Api, type Anchor, type Comment } from "./api";
-import { avatarBackground, avatarInitial, avatarInk } from "./avatar";
 import {
   buildAnchor,
   buildRegionAnchor,
@@ -149,7 +148,6 @@ function mount(cfg: PinmarkGlobal) {
   let counts: Record<string, number> = {};
   let pinsVisible = true;
   let showResolved = false;
-  let avatarStyle: "initial" | "gradient" = "initial"; // owner-set, from API
   let commentMode = false;
   let menuOpen = false;
   let menuHasEntered = false;
@@ -188,23 +186,11 @@ function mount(cfg: PinmarkGlobal) {
   }
   let lastSnapshot = "";
 
-  // Aurora orb identity for account-less guests (deterministic per name)
-  function gavatar(name: string): HTMLElement {
-    const a = el("span", "gavatar");
-    a.style.background = avatarBackground(name);
-    if (avatarStyle === "initial") {
-      a.textContent = avatarInitial(name);
-      a.style.color = avatarInk(name);
-    }
-    return a;
-  }
-
   async function refresh() {
     try {
       const res = await api.fetchComments(route);
       comments = res.comments;
       counts = res.counts;
-      avatarStyle = res.settings?.avatar_style ?? "initial";
       lastSnapshot = snapshotOf(comments, counts);
       renderAll();
       consumeGotoTarget(); // cross-route panel navigation lands here
@@ -498,11 +484,7 @@ function mount(cfg: PinmarkGlobal) {
           for (const pin of routePins) {
             const item = el("button", "thread-item");
             const who = el("div", "who");
-            who.append(
-              gavatar(pin.author_name),
-              pin.author_name,
-              ` · ${relTime(pin.created_at)}`
-            );
+            who.append(pin.author_name, ` · ${relTime(pin.created_at)}`);
             if (pin.resolved) who.appendChild(el("span", "done", "resolved"));
             const excerpt = el("div", "excerpt", pin.body);
             item.append(who, excerpt);
@@ -728,7 +710,7 @@ function mount(cfg: PinmarkGlobal) {
       const item = el("div", "comment");
       const meta = el("div", "meta");
       const author = el("b", "", c.author_name);
-      meta.append(gavatar(c.author_name), author, ` · ${relTime(c.created_at)}`);
+      meta.append(author, ` · ${relTime(c.created_at)}`);
       const body = el("div", "body", c.body); // textContent — never innerHTML
       item.append(meta, body);
 
@@ -1077,7 +1059,6 @@ function mount(cfg: PinmarkGlobal) {
     if (document.visibilityState !== "visible") return;
     try {
       const res = await api.fetchComments(route);
-      avatarStyle = res.settings?.avatar_style ?? avatarStyle;
       const next = snapshotOf(res.comments, res.counts);
       if (next !== lastSnapshot) {
         lastSnapshot = next;

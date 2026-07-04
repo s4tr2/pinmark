@@ -10,10 +10,8 @@ import {
   resolveAllThreads,
   resolveThread,
   updateAccessMode,
-  updateAvatarStyle,
   updateDomains,
 } from "@/lib/actions";
-import { avatarBackground, avatarInitial, avatarInk } from "@/lib/avatar";
 import { snippetFor } from "@/lib/config";
 import { CopyButton } from "./copy-button";
 
@@ -61,33 +59,14 @@ type ThreadComment = {
   created_at: string;
 };
 
-function GuestAvatar({
-  name,
-  style,
-}: {
-  name: string;
-  style: "initial" | "gradient";
-}) {
-  return (
-    <span
-      className="guest-avatar"
-      style={{ background: avatarBackground(name), color: avatarInk(name) }}
-    >
-      {style === "initial" ? avatarInitial(name) : null}
-    </span>
-  );
-}
-
 function Threads({
   comments,
   projectId,
   filter,
-  avatarStyle,
 }: {
   comments: ThreadComment[];
   projectId: string;
   filter: "open" | "resolved";
-  avatarStyle: "initial" | "gradient";
 }) {
   const pins = comments.filter(
     (c) => !c.parent_id && (filter === "resolved") === c.resolved
@@ -109,8 +88,7 @@ function Threads({
           </h3>
           {routePins.map((pin) => (
             <div className="card" key={pin.id} style={{ margin: "8px 0" }}>
-              <p className="row" style={{ margin: "0 0 4px", gap: 7 }}>
-                <GuestAvatar name={pin.author_name} style={avatarStyle} />
+              <p style={{ margin: "0 0 4px" }}>
                 <strong>{pin.author_name}</strong>{" "}
                 <span className="muted">
                   {new Date(pin.created_at).toLocaleString()}
@@ -130,8 +108,7 @@ function Threads({
                       margin: "8px 0",
                     }}
                   >
-                    <p className="row" style={{ margin: 0, gap: 7 }}>
-                      <GuestAvatar name={reply.author_name} style={avatarStyle} />
+                    <p style={{ margin: 0 }}>
                       <strong>{reply.author_name}</strong>{" "}
                       <span className="muted">
                         {new Date(reply.created_at).toLocaleString()}
@@ -209,7 +186,7 @@ export default async function ProjectPage({
   const { data: project } = await supabase
     .from("projects")
     .select(
-      "id, name, public_key, allowed_domains, access_mode, review_token, avatar_style, created_at"
+      "id, name, public_key, allowed_domains, access_mode, review_token, created_at"
     )
     .eq("id", params.id)
     .single();
@@ -289,7 +266,6 @@ export default async function ProjectPage({
           comments={comments ?? []}
           projectId={project.id}
           filter={filter}
-          avatarStyle={(project.avatar_style as "initial" | "gradient") ?? "initial"}
         />
       </div>
 
@@ -331,51 +307,6 @@ export default async function ProjectPage({
             projectId={project.id}
           />
         )}
-      </div>
-
-      <div className="card">
-        <h2>Guest avatars</h2>
-        <p className="muted">
-          Reviewers have no accounts; each name gets its own aurora orb —
-          deterministic, so the same reviewer always looks the same.
-        </p>
-        <p className="row" aria-hidden>
-          {["Maya", "Arjun", "Sam"].map((n) => (
-            <span key={n} className="row" style={{ gap: 6 }}>
-              <GuestAvatar
-                name={n}
-                style={(project.avatar_style as "initial" | "gradient") ?? "initial"}
-              />
-              <span className="muted">{n}</span>
-            </span>
-          ))}
-        </p>
-        <form action={updateAvatarStyle}>
-          <input type="hidden" name="id" value={project.id} />
-          <label style={{ margin: "8px 0" }}>
-            <input
-              type="radio"
-              name="avatar_style"
-              value="initial"
-              defaultChecked={project.avatar_style !== "gradient"}
-              style={{ width: "auto", marginRight: 8 }}
-            />
-            Initial on gradient
-          </label>
-          <label style={{ margin: "8px 0" }}>
-            <input
-              type="radio"
-              name="avatar_style"
-              value="gradient"
-              defaultChecked={project.avatar_style === "gradient"}
-              style={{ width: "auto", marginRight: 8 }}
-            />
-            Gradient only
-          </label>
-          <p>
-            <button type="submit">Save avatar style</button>
-          </p>
-        </form>
       </div>
 
       <div className="card">
