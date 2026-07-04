@@ -30,56 +30,34 @@ async function demoPinCount(): Promise<number | null> {
   }
 }
 
-function FeedbackDemo() {
+/**
+ * Decorative margin pins: the landing page styled as a prototype under
+ * review. Same visual language as the real widget's pins, so when the live
+ * widget's pins appear alongside them, fiction and product are seamless.
+ */
+function MarginPin({
+  n,
+  name,
+  quip,
+  check,
+  className,
+}: {
+  n: number;
+  name: string;
+  quip: string;
+  check?: boolean;
+  className: string;
+}) {
   return (
-    <div
-      className="feedback-demo landing-reveal landing-reveal-6"
-      role="img"
-      aria-label="A reviewer moves to a prototype button, drops pin 3, and leaves the comment: Tighten the label before handoff."
-    >
-      <div className="demo-chrome" aria-hidden="true">
-        <span />
-        <span />
-        <span />
-        <div className="demo-address">preview.yourapp.dev</div>
-      </div>
-      <div className="demo-stage" aria-hidden="true">
-        <div className="demo-prototype">
-          <span className="demo-eyebrow">Project overview</span>
-          <span className="demo-heading">Ready for review</span>
-          <span className="demo-copy-line demo-copy-line-long" />
-          <span className="demo-copy-line" />
-          <span className="demo-target">Share prototype</span>
-        </div>
-        <span className="demo-click-ring" />
-        <span className="demo-pin">3</span>
-        <div className="demo-comment">
-          <span className="demo-comment-meta">
-            <span className="demo-avatar">M</span>
-            Maya · just now
-            <span className="demo-check">✓</span>
-          </span>
-          <span className="demo-comment-text">
-            Tighten the label before handoff.
-          </span>
-        </div>
-        <div className="demo-cursor">
-          <svg
-            className="demo-cursor-art"
-            viewBox="0 0 24 28"
-            fill="none"
-            aria-hidden="true"
-          >
-            <path
-              d="M3 2.5v19.2l5.2-4.8 3.5 8 3.3-1.5-3.5-7.8h7L3 2.5Z"
-              fill="var(--fg)"
-              stroke="var(--bg)"
-              strokeWidth="1.5"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </div>
-      </div>
+    <div className={`margin-pin ${className}`} aria-hidden="true">
+      <span className="mp-pin">{n}</span>
+      <span className="mp-card">
+        <span className="mp-meta">
+          {name}
+          {check && <span className="mp-check">✓</span>}
+        </span>
+        {quip}
+      </span>
     </div>
   );
 }
@@ -97,8 +75,28 @@ export default async function LandingPage() {
         </span>
       </nav>
 
+      <MarginPin
+        n={1}
+        name="Maya · 2m"
+        quip="this headline ships."
+        className="margin-pin-1"
+      />
+      <MarginPin
+        n={2}
+        name="Arjun · just now"
+        quip="wait — one script tag?"
+        className="margin-pin-2"
+      />
+      <MarginPin
+        n={3}
+        name="Sam · 1h"
+        quip="resolved before standup."
+        check
+        className="margin-pin-3"
+      />
+
       <h1 className="hero-title landing-reveal landing-reveal-2">
-        Pin feedback directly on your prototype.
+        Pin feedback <em className="hero-em">directly</em> on your prototype.
       </h1>
       <p className="hero-sub landing-reveal landing-reveal-3">
         Prototype feedback arrives as screenshots and &quot;the button feels
@@ -138,29 +136,35 @@ export default async function LandingPage() {
         </p>
       </div>
 
-      <FeedbackDemo />
-
-      <section className="doc-section">
-        <h2>How it works</h2>
-        <ol className="steps">
-          <li>
-            <strong>Create a project.</strong> Name it, list the domains your
-            prototype lives on.
-          </li>
-          <li>
-            <strong>Paste the snippet.</strong> One script tag in the{" "}
-            <code>&lt;head&gt;</code>. Redeploy.
-          </li>
-          <li>
-            <strong>Share the link you already share.</strong> Reviewers pin
-            comments on the UI itself; you reply, resolve, and triage from
-            one dashboard.
-          </li>
-        </ol>
+      <section className="landing-section">
+        <h2 className="landing-h2">How it works</h2>
+        <div className="steps-grid">
+          <div className="step">
+            <span className="step-num">01</span>
+            <p>
+              <strong>Create a project.</strong> Name it, list the domains
+              your prototype lives on.
+            </p>
+          </div>
+          <div className="step">
+            <span className="step-num">02</span>
+            <p>
+              <strong>Paste the snippet.</strong> One script tag in the{" "}
+              <code>&lt;head&gt;</code>. Redeploy.
+            </p>
+          </div>
+          <div className="step">
+            <span className="step-num">03</span>
+            <p>
+              <strong>Share the link you already share.</strong> Reviewers
+              pin comments on the UI itself; you triage from one dashboard.
+            </p>
+          </div>
+        </div>
       </section>
 
-      <section className="doc-section">
-        <h2>Works where your prototype works</h2>
+      <section className="landing-section">
+        <h2 className="landing-h2">Works where your prototype works</h2>
         <p className="platforms">
           Vercel · Lovable · Replit · Webflow · Framer · Netlify · Bolt · v0
           · GitHub Pages · your own server
@@ -170,9 +174,9 @@ export default async function LandingPage() {
         </p>
       </section>
 
-      <section className="doc-section">
-        <h2>Reviewers stay anonymous</h2>
-        <p>
+      <section className="landing-section">
+        <h2 className="landing-h2">Reviewers stay anonymous</h2>
+        <p style={{ maxWidth: "52ch" }}>
           No reviewer accounts, ever. A guest is a first name and a random
           token in their own browser: no emails, no cookies, no tracking.
           Prefer a closed loop? Switch a project to review-link mode and the
@@ -180,8 +184,9 @@ export default async function LandingPage() {
         </p>
       </section>
 
-      <footer className="muted" style={{ marginTop: "4rem", fontSize: "0.8125rem" }}>
-        {BRAND_NAME} — comments for coded prototypes
+      <footer className="landing-footer">
+        <span className="footer-mark">{BRAND_NAME}</span>
+        <span className="muted">comments for coded prototypes</span>
       </footer>
 
       {DEMO_KEY && (
