@@ -105,8 +105,31 @@ export default async function LandingPage() {
         className="margin-pin-3"
       />
 
+      <div className="sticky-note" aria-hidden="true">
+        <span className="sticky-tape" />
+        <span className="sticky-strike">check screenshots in Slack</span>
+      </div>
+      <span className="specimen" aria-hidden="true">
+        FIG. 01 — THE SHORTCUT
+      </span>
+
       <h1 className="hero-title landing-reveal landing-reveal-2">
-        Pin feedback <em className="hero-em">directly</em> on your prototype.
+        Pin feedback{" "}
+        <em className="hero-em">
+          directly
+          <svg
+            className="pen-circle"
+            viewBox="0 0 132 52"
+            aria-hidden="true"
+            fill="none"
+          >
+            <path
+              pathLength="100"
+              d="M14 30 C 10 12, 96 2, 120 14 C 134 22, 122 44, 62 47 C 28 48, 8 42, 12 28 C 14 21, 26 15, 40 12"
+            />
+          </svg>
+        </em>{" "}
+        on your prototype.
       </h1>
       <p className="hero-sub landing-reveal landing-reveal-3">
         Prototype feedback arrives as screenshots and &quot;the button feels
@@ -135,6 +158,8 @@ export default async function LandingPage() {
       )}
 
       <div className="hero-cta landing-reveal landing-reveal-5">
+        <span className="tape tape-tl" aria-hidden="true" />
+        <span className="tape tape-br" aria-hidden="true" />
         <code className="snippet">{`<script async src="${CDN_URL}/w.js" data-pinmark="pk_live_YOUR_KEY"></script>`}</code>
         <p className="row" style={{ marginTop: 10 }}>
           <Link href="/login">
@@ -197,6 +222,9 @@ export default async function LandingPage() {
       <footer className="landing-footer">
         <span className="footer-mark">{BRAND_NAME}</span>
         <span className="muted">comments for coded prototypes</span>
+        <span className="stamp" aria-hidden="true">
+          Resolved ✓
+        </span>
       </footer>
 
       {DEMO_KEY && (
