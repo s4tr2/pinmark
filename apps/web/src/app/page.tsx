@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import Script from "next/script";
 import { BRAND_NAME, CDN_URL } from "@/lib/config";
@@ -47,23 +46,6 @@ export default async function LandingPage() {
           <Link href="/login">Sign in</Link>
         </span>
       </nav>
-
-      <Image
-        src="/press-c.png"
-        alt="A hand holding a single orange keyboard key labeled C — the Pinmark comment shortcut"
-        width={680}
-        height={850}
-        className="press-c"
-        priority={false}
-      />
-
-      <div className="sticky-note" aria-hidden="true">
-        <span className="sticky-tape" />
-        <span className="sticky-strike">check screenshots in Slack</span>
-      </div>
-      <span className="specimen" aria-hidden="true">
-        FIG. 01 — THE SHORTCUT
-      </span>
 
       <h1 className="hero-title landing-reveal landing-reveal-2">
         Pin feedback directly on your prototype.
@@ -157,9 +139,6 @@ export default async function LandingPage() {
       <footer className="landing-footer">
         <span className="footer-mark">{BRAND_NAME}</span>
         <span className="muted">comments for coded prototypes</span>
-        <span className="stamp" aria-hidden="true">
-          Resolved ✓
-        </span>
       </footer>
 
       {DEMO_KEY && (
