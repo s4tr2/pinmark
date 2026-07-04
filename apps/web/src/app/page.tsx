@@ -66,22 +66,7 @@ export default async function LandingPage() {
       </span>
 
       <h1 className="hero-title landing-reveal landing-reveal-2">
-        Pin feedback{" "}
-        <em className="hero-em">
-          directly
-          <svg
-            className="pen-circle"
-            viewBox="0 0 132 52"
-            aria-hidden="true"
-            fill="none"
-          >
-            <path
-              pathLength="100"
-              d="M14 30 C 10 12, 96 2, 120 14 C 134 22, 122 44, 62 47 C 28 48, 8 42, 12 28 C 14 21, 26 15, 40 12"
-            />
-          </svg>
-        </em>{" "}
-        on your prototype.
+        Pin feedback directly on your prototype.
       </h1>
       <p className="hero-sub landing-reveal landing-reveal-3">
         Prototype feedback arrives as screenshots and &quot;the button feels
