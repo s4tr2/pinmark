@@ -2,6 +2,7 @@ import Link from "next/link";
 import Script from "next/script";
 import { BRAND_NAME, CDN_URL } from "@/lib/config";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { avatarBackground, avatarInitial, avatarInk } from "@/lib/avatar";
 import { TactileClicks } from "./tactile-clicks";
 
 const DEMO_KEY = process.env.NEXT_PUBLIC_DEMO_KEY;
@@ -55,7 +56,15 @@ function FeedbackDemo() {
         <span className="demo-pin">3</span>
         <div className="demo-comment">
           <span className="demo-comment-meta">
-            <span className="demo-avatar">M</span>
+            <span
+              className="demo-avatar"
+              style={{
+                background: avatarBackground("Maya"),
+                color: avatarInk("Maya"),
+              }}
+            >
+              {avatarInitial("Maya")}
+            </span>
             Maya · just now
             <span className="demo-check">✓</span>
           </span>

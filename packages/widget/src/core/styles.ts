@@ -286,9 +286,35 @@ export const CSS = `
 
 .comment { margin-bottom: 10px; }
 .comment .meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   font-size: 11px;
   color: var(--muted);
   margin-bottom: 2px;
+}
+
+/* aurora orb identity for account-less guests; grain via inline SVG noise */
+.gavatar {
+  position: relative;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 50%;
+  overflow: hidden;
+  font-size: 8px;
+  font-weight: 700;
+  line-height: 1;
+}
+.gavatar::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='64' height='64' filter='url(%23n)' opacity='0.6'/%3E%3C/svg%3E");
+  opacity: 0.35;
+  mix-blend-mode: overlay;
 }
 .comment .meta b { color: var(--fg); font-weight: 600; }
 .comment .body {

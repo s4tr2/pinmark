@@ -33,6 +33,7 @@ export interface Comment {
 export interface CommentsResponse {
   comments: Comment[];
   counts: Record<string, number>;
+  settings?: { avatar_style?: "initial" | "gradient" };
 }
 
 export class Api {

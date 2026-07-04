@@ -15,6 +15,7 @@ export type GuestProject = {
   allowed_domains: string[];
   access_mode: "open" | "review_link";
   review_token: string;
+  avatar_style: "initial" | "gradient";
 };
 
 /**
@@ -87,7 +88,9 @@ async function lookupProject(key: string): Promise<GuestProject | null> {
   const supabase = createAdminClient();
   const { data: project } = await supabase
     .from("projects")
-    .select("id, public_key, allowed_domains, access_mode, review_token")
+    .select(
+      "id, public_key, allowed_domains, access_mode, review_token, avatar_style"
+    )
     .eq("public_key", key)
     .single();
 

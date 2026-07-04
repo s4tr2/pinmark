@@ -61,7 +61,11 @@ export async function GET(req: NextRequest) {
   }
 
   return NextResponse.json(
-    { comments: comments ?? [], counts },
+    {
+      comments: comments ?? [],
+      counts,
+      settings: { avatar_style: guard.project.avatar_style ?? "initial" },
+    },
     { headers: corsHeaders(guard.origin) }
   );
 }
