@@ -11,6 +11,11 @@ export const CSS = `
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, Roboto, Helvetica, Arial, sans-serif;
 }
 
+.root {
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+}
+
 .root.light {
   --bg: oklch(1 0.002 262);
   --bg-subtle: oklch(0.96 0.004 262);
@@ -53,9 +58,10 @@ export const CSS = `
   justify-content: center;
   box-shadow: var(--shadow);
   pointer-events: auto;
-  transition: transform 0.15s ease-out;
+  transition: transform 160ms var(--ease-out);
 }
-.bubble:hover { transform: scale(1.05); }
+.bubble:active { transform: scale(0.97); transition-duration: 100ms; }
+.bubble:focus-visible:active { transform: none; }
 .bubble:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .bubble svg { width: 20px; height: 20px; display: block; }
 .badge {
@@ -88,6 +94,12 @@ export const CSS = `
   box-shadow: var(--shadow);
   padding: 5px;
   pointer-events: auto;
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  transform-origin: bottom right;
+  transition:
+    opacity 180ms var(--ease-out),
+    transform 180ms var(--ease-out);
 }
 .menu button {
   display: block;
@@ -100,8 +112,12 @@ export const CSS = `
   padding: 7px 10px;
   border-radius: 6px;
   cursor: pointer;
+  transition:
+    background-color 140ms ease,
+    transform 140ms var(--ease-out);
 }
-.menu button:hover { background: var(--bg-subtle); }
+.menu button:active { transform: scale(0.98); transition-duration: 90ms; }
+.menu button:focus-visible:active { transform: none; }
 .menu .brand {
   font-size: 11px;
   padding: 7px 10px 5px;
@@ -152,14 +168,15 @@ export const CSS = `
   cursor: pointer;
   box-shadow: var(--shadow);
   pointer-events: auto;
-  transition: transform 0.15s ease-out;
-  animation: pin-in 0.18s ease-out;
+  transition: transform 160ms var(--ease-out);
 }
-.pin:hover { transform: scale(1.12); }
+.pin:active { transform: scale(0.97); transition-duration: 100ms; }
+.pin:focus-visible:active { transform: none; }
 .pin.approx { opacity: 0.55; border-style: dashed; }
 .pin:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.pin.entering { animation: pin-in 180ms var(--ease-out); }
 @keyframes pin-in {
-  from { transform: translateY(-6px) scale(0.85); opacity: 0; }
+  from { transform: translateY(-4px) scale(0.94); opacity: 0; }
   to { transform: none; opacity: 1; }
 }
 
@@ -186,6 +203,11 @@ export const CSS = `
   box-shadow: var(--shadow);
   padding: 12px;
   pointer-events: auto;
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  transition:
+    opacity 200ms var(--ease-out),
+    transform 200ms var(--ease-out);
 }
 .popover h3 {
   margin: 0 0 8px;
@@ -205,7 +227,7 @@ export const CSS = `
   padding: 8px 10px;
   margin-bottom: 8px;
   resize: vertical;
-  transition: border-color 0.15s ease-out, background 0.15s ease-out;
+  transition: border-color 150ms ease, background-color 150ms ease;
 }
 .popover input:focus,
 .popover textarea:focus {
@@ -230,8 +252,12 @@ export const CSS = `
   border: 1px solid var(--border);
   background: var(--bg);
   color: var(--fg);
+  transition:
+    background-color 140ms ease,
+    transform 140ms var(--ease-out);
 }
-.popover .actions button:hover { background: var(--bg-subtle); }
+.popover .actions button:active { transform: scale(0.97); transition-duration: 90ms; }
+.popover .actions button:focus-visible:active { transform: none; }
 /* chunky charcoal pill: top-lit gradient + inner highlight, arrow nudges on hover */
 .popover .actions button.primary {
   font-weight: 600;
@@ -248,12 +274,15 @@ export const CSS = `
   content: "→";
   display: inline-block;
   margin-left: 6px;
-  transition: transform 0.15s ease-out;
+  transition: transform 160ms var(--ease-out);
 }
-.popover .actions button.primary:hover { filter: brightness(1.12); }
-.popover .actions button.primary:hover::after { transform: translateX(2px); }
 .popover .actions button.primary:active { filter: brightness(0.95); }
-.popover .actions button:disabled { opacity: 0.5; cursor: default; filter: none; }
+.popover .actions button:disabled {
+  opacity: 0.5;
+  cursor: default;
+  filter: none;
+  transform: none;
+}
 
 .comment { margin-bottom: 10px; }
 .comment .meta {
@@ -297,6 +326,12 @@ export const CSS = `
   box-shadow: var(--shadow);
   padding: 10px;
   pointer-events: auto;
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  transform-origin: bottom right;
+  transition:
+    opacity 200ms var(--ease-out),
+    transform 200ms var(--ease-out);
 }
 .panel h3 {
   margin: 8px 4px 4px;
@@ -316,8 +351,12 @@ export const CSS = `
   padding: 7px 8px;
   cursor: pointer;
   color: var(--fg);
+  transition:
+    background-color 140ms ease,
+    transform 140ms var(--ease-out);
 }
-.panel .thread-item:hover { background: var(--bg-subtle); }
+.panel .thread-item:active { transform: scale(0.985); transition-duration: 90ms; }
+.panel .thread-item:focus-visible:active { transform: none; }
 .panel .thread-item .who {
   font-size: 12px;
   font-weight: 600;
@@ -352,16 +391,106 @@ export const CSS = `
   background: var(--bg-subtle);
 }
 
-/* navigate-to-pin pulse */
-.pin.pulse { animation: pin-pulse 1s ease-out 2; }
+/* navigate-to-pin pulse: the ring animates independently so the pin keeps
+   its press/hover transform and only compositor-friendly properties move. */
+.pin.pulse::after {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border: 2px solid var(--accent);
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  transform: scale(0.88);
+  animation: pin-pulse 280ms var(--ease-out) 2;
+}
 @keyframes pin-pulse {
-  0% { box-shadow: 0 0 0 0 var(--accent-soft), var(--shadow); }
-  60% { box-shadow: 0 0 0 12px transparent, var(--shadow); }
-  100% { box-shadow: 0 0 0 0 transparent, var(--shadow); }
+  0% { opacity: 0.7; transform: scale(0.88); }
+  70%, 100% { opacity: 0; transform: scale(1.75); }
+}
+
+.menu.no-enter,
+.popover.no-enter,
+.panel.no-enter {
+  transition: none;
+}
+
+@starting-style {
+  .menu {
+    opacity: 0;
+    transform: translateY(4px) scale(0.97);
+  }
+  .popover {
+    opacity: 0;
+    transform: translateY(4px) scale(0.97);
+  }
+  .panel {
+    opacity: 0;
+    transform: translateY(6px) scale(0.97);
+  }
+  .menu.no-enter,
+  .popover.no-enter,
+  .panel.no-enter {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .bubble:hover { transform: scale(1.05); }
+  .pin:hover { transform: scale(1.1); }
+  .menu button:hover,
+  .popover .actions button:hover,
+  .panel .thread-item:hover { background: var(--bg-subtle); }
+  .popover .actions button.primary:hover {
+    background: linear-gradient(180deg, oklch(0.36 0.012 262) 0%, oklch(0.24 0.01 262) 100%);
+    filter: brightness(1.12);
+  }
+  .root.dark .popover .actions button.primary:hover {
+    background: linear-gradient(180deg, oklch(0.42 0.014 262) 0%, oklch(0.3 0.012 262) 100%);
+  }
+  .popover .actions button.primary:hover::after { transform: translateX(2px); }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  * { transition: none !important; animation: none !important; }
+  .pin.entering,
+  .pin.pulse::after {
+    animation: none;
+  }
+  .bubble,
+  .pin {
+    transition: none;
+  }
+  .menu,
+  .popover,
+  .panel {
+    transform: none;
+    transition: opacity 120ms ease;
+  }
+  .menu button,
+  .popover .actions button,
+  .panel .thread-item,
+  .popover .actions button.primary::after {
+    transition: background-color 120ms ease, filter 120ms ease;
+  }
+  .bubble:hover,
+  .bubble:active,
+  .pin:hover,
+  .pin:active,
+  .menu button:active,
+  .popover .actions button:active,
+  .panel .thread-item:active,
+  .popover .actions button.primary:hover::after {
+    transform: none;
+  }
+  @starting-style {
+    .menu,
+    .popover,
+    .panel {
+      opacity: 0;
+      transform: none;
+    }
+  }
 }
 `;
 

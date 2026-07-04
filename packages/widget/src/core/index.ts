@@ -150,8 +150,13 @@ function mount(cfg: PinmarkGlobal) {
   let showResolved = false;
   let commentMode = false;
   let menuOpen = false;
+  let menuHasEntered = false;
   let panelOpen = false;
+  let panelHasEntered = false;
   let panelData: Comment[] | null = null; // all-routes threads, fetched on open
+  let renderedPopoverKey: string | null = null;
+  let suppressNextPopoverMotion = false;
+  let newestPinId: string | null = null;
   // popover: composer (new pin) or thread (existing pin)
   let popover:
     | { kind: "composer"; anchor: Anchor; vx: number; vy: number }
@@ -314,6 +319,7 @@ function mount(cfg: PinmarkGlobal) {
       if (!pos) return;
       const btn = el("button", "pin", String(i + 1));
       btn.dataset.pin = pin.id;
+      if (pin.id === newestPinId) btn.classList.add("entering");
       if (pos.approximate) btn.classList.add("approx");
       if (pin.resolved) btn.classList.add("resolved");
       btn.style.left = `${pos.x}px`;
@@ -327,6 +333,7 @@ function mount(cfg: PinmarkGlobal) {
         e.stopPropagation();
         const p = currentPos(pin);
         popover = { kind: "thread", pinId: pin.id, vx: p?.x ?? 0, vy: p?.y ?? 0 };
+        suppressNextPopoverMotion = e.detail === 0;
         renderPopover();
       });
       btn.addEventListener("mouseenter", () => {
@@ -339,6 +346,7 @@ function mount(cfg: PinmarkGlobal) {
       });
       pinLayer.appendChild(btn);
     });
+    newestPinId = null;
     updateRegionDisplay();
     cfg.pins = pinLayer.children.length;
   }
@@ -380,6 +388,7 @@ function mount(cfg: PinmarkGlobal) {
     bubble.addEventListener("click", (e) => {
       e.stopPropagation();
       menuOpen = !menuOpen;
+      if (menuOpen) menuHasEntered = e.detail === 0;
       renderBubble();
     });
     const open = counts[route] ?? 0;
@@ -390,7 +399,7 @@ function mount(cfg: PinmarkGlobal) {
     uiLayer.appendChild(bubble);
 
     if (menuOpen) {
-      const menu = el("div", "menu");
+      const menu = el("div", menuHasEntered ? "menu no-enter" : "menu");
       const add = el("button", "", "Add comment (C)");
       add.addEventListener("click", () => {
         menuOpen = false;
@@ -400,7 +409,7 @@ function mount(cfg: PinmarkGlobal) {
       threads.addEventListener("click", (e) => {
         e.stopPropagation();
         menuOpen = false;
-        openPanel();
+        openPanel(e.detail !== 0);
       });
       const toggle = el(
         "button",
@@ -429,14 +438,16 @@ function mount(cfg: PinmarkGlobal) {
       brand.appendChild(link);
       menu.append(add, threads, toggle, resolvedToggle, brand);
       uiLayer.appendChild(menu);
+      menuHasEntered = true;
     }
 
     if (panelOpen) renderPanel();
   }
 
   // ---- all-threads panel (PRD §4.3): grouped by route, click navigates ----
-  function openPanel() {
+  function openPanel(animate = true) {
     panelOpen = true;
+    panelHasEntered = !animate;
     panelData = null;
     renderBubble();
     api
@@ -452,7 +463,7 @@ function mount(cfg: PinmarkGlobal) {
   }
 
   function renderPanel() {
-    const panel = el("div", "panel");
+    const panel = el("div", panelHasEntered ? "panel no-enter" : "panel");
     panel.setAttribute("role", "dialog");
     panel.setAttribute("aria-label", "All comment threads");
     panel.addEventListener("click", (e) => e.stopPropagation());
@@ -477,7 +488,9 @@ function mount(cfg: PinmarkGlobal) {
             if (pin.resolved) who.appendChild(el("span", "done", "resolved"));
             const excerpt = el("div", "excerpt", pin.body);
             item.append(who, excerpt);
-            item.addEventListener("click", () => goToPin(pin));
+            item.addEventListener("click", (event) =>
+              goToPin(pin, event.detail !== 0)
+            );
             panel.appendChild(item);
           }
         }
@@ -486,17 +499,20 @@ function mount(cfg: PinmarkGlobal) {
 
     trapFocus(panel);
     uiLayer.appendChild(panel);
+    panelHasEntered = true;
   }
 
-  function goToPin(pin: Comment) {
+  function goToPin(pin: Comment, animate = true) {
     if (pin.route === route) {
       panelOpen = false;
       renderBubble();
-      pulsePin(pin.id);
+      pulsePin(pin.id, animate);
     } else {
       // cross-route: remember the target, navigate, pulse after reload/render
       try {
         sessionStorage.setItem("pinmark:goto", pin.id);
+        if (animate) sessionStorage.removeItem("pinmark:goto-without-motion");
+        else sessionStorage.setItem("pinmark:goto-without-motion", pin.id);
       } catch {
         /* ignore */
       }
@@ -504,7 +520,7 @@ function mount(cfg: PinmarkGlobal) {
     }
   }
 
-  function pulsePin(id: string) {
+  function pulsePin(id: string, animate = true) {
     const pin = comments.find((c) => c.id === id);
     if (pin?.resolved && !showResolved) {
       showResolved = true; // target is resolved and hidden — reveal it
@@ -512,26 +528,38 @@ function mount(cfg: PinmarkGlobal) {
     }
     const pos = pinPositions.get(id) ?? (pin?.anchor ? resolveAnchor(pin.anchor) : null);
     if (pos) {
+      const shouldReduceMotion = matchMedia(
+        "(prefers-reduced-motion: reduce)"
+      ).matches;
+      const shouldAnimate = animate && !shouldReduceMotion;
       window.scrollTo({
         top: Math.max(0, pos.y + window.scrollY - innerHeight / 2),
-        behavior: "smooth",
+        behavior: shouldAnimate ? "smooth" : "auto",
       });
+      // Let smooth scroll settle before pulsing so the ring is seen. Reduced
+      // motion jumps immediately and skips the decorative pulse in CSS.
+      setTimeout(
+        () => {
+          repositionPins();
+          if (!shouldAnimate) return;
+          const node = pinLayer.querySelector(`[data-pin="${id}"]`);
+          node?.classList.add("pulse");
+          setTimeout(() => node?.classList.remove("pulse"), 700);
+        },
+        shouldAnimate ? 350 : 0
+      );
     }
-    // let the scroll settle before pulsing so the ring is seen
-    setTimeout(() => {
-      repositionPins();
-      const node = pinLayer.querySelector(`[data-pin="${id}"]`);
-      node?.classList.add("pulse");
-      setTimeout(() => node?.classList.remove("pulse"), 2200);
-    }, 350);
   }
 
   function consumeGotoTarget() {
     try {
       const id = sessionStorage.getItem("pinmark:goto");
       if (id && comments.some((c) => c.id === id)) {
+        const withoutMotion =
+          sessionStorage.getItem("pinmark:goto-without-motion") === id;
         sessionStorage.removeItem("pinmark:goto");
-        pulsePin(id);
+        sessionStorage.removeItem("pinmark:goto-without-motion");
+        pulsePin(id, !withoutMotion);
       }
     } catch {
       /* ignore */
@@ -572,12 +600,24 @@ function mount(cfg: PinmarkGlobal) {
   function renderPopover() {
     shadow.querySelectorAll(".popover").forEach((n) => n.remove());
     updateRegionDisplay();
-    if (!popover) return;
+    if (!popover) {
+      renderedPopoverKey = null;
+      suppressNextPopoverMotion = false;
+      return;
+    }
 
-    const card = el("div", "popover");
+    const motionKey =
+      popover.kind === "thread" ? `thread:${popover.pinId}` : "composer";
+    const card = el(
+      "div",
+      suppressNextPopoverMotion || motionKey === renderedPopoverKey
+        ? "popover no-enter"
+        : "popover"
+    );
     const { x, y } = popoverPosition(popover.vx, popover.vy);
     card.style.left = `${x}px`;
     card.style.top = `${y}px`;
+    card.style.transformOrigin = `${popover.vx - x}px ${popover.vy - y}px`;
     card.addEventListener("click", (e) => e.stopPropagation());
 
     if (popover.kind === "composer") buildComposer(card, popover.anchor);
@@ -585,6 +625,8 @@ function mount(cfg: PinmarkGlobal) {
 
     trapFocus(card);
     uiLayer.appendChild(card);
+    renderedPopoverKey = motionKey;
+    suppressNextPopoverMotion = false;
     const first = card.querySelector<HTMLElement>("input, textarea");
     first?.focus();
   }
@@ -641,6 +683,7 @@ function mount(cfg: PinmarkGlobal) {
         if (nameInput) setName(name);
         rememberMyComment(created.id);
         myIds.add(created.id);
+        newestPinId = created.id;
         comments.push(created);
         counts[route] = (counts[route] ?? 0) + 1;
         lastSnapshot = snapshotOf(comments, counts);

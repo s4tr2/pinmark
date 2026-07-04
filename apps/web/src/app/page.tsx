@@ -30,12 +30,66 @@ async function demoPinCount(): Promise<number | null> {
   }
 }
 
+function FeedbackDemo() {
+  return (
+    <div
+      className="feedback-demo landing-reveal landing-reveal-6"
+      role="img"
+      aria-label="A reviewer moves to a prototype button, drops pin 3, and leaves the comment: Tighten the label before handoff."
+    >
+      <div className="demo-chrome" aria-hidden="true">
+        <span />
+        <span />
+        <span />
+        <div className="demo-address">preview.yourapp.dev</div>
+      </div>
+      <div className="demo-stage" aria-hidden="true">
+        <div className="demo-prototype">
+          <span className="demo-eyebrow">Project overview</span>
+          <span className="demo-heading">Ready for review</span>
+          <span className="demo-copy-line demo-copy-line-long" />
+          <span className="demo-copy-line" />
+          <span className="demo-target">Share prototype</span>
+        </div>
+        <span className="demo-click-ring" />
+        <span className="demo-pin">3</span>
+        <div className="demo-comment">
+          <span className="demo-comment-meta">
+            <span className="demo-avatar">M</span>
+            Maya · just now
+            <span className="demo-check">✓</span>
+          </span>
+          <span className="demo-comment-text">
+            Tighten the label before handoff.
+          </span>
+        </div>
+        <div className="demo-cursor">
+          <svg
+            className="demo-cursor-art"
+            viewBox="0 0 24 28"
+            fill="none"
+            aria-hidden="true"
+          >
+            <path
+              d="M3 2.5v19.2l5.2-4.8 3.5 8 3.3-1.5-3.5-7.8h7L3 2.5Z"
+              fill="var(--fg)"
+              stroke="var(--bg)"
+              strokeWidth="1.5"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default async function LandingPage() {
   const pinCount = await demoPinCount();
   return (
     <main className="landing">
       <TactileClicks />
-      <nav className="crumbs" style={{ display: "flex", justifyContent: "space-between" }}>
+      <nav className="crumbs landing-nav landing-reveal landing-reveal-1">
         <span>{BRAND_NAME}</span>
         <span>
           <Link href="/docs">Install guide</Link> ·{" "}
@@ -43,10 +97,10 @@ export default async function LandingPage() {
         </span>
       </nav>
 
-      <h1 className="hero-title">
+      <h1 className="hero-title landing-reveal landing-reveal-2">
         Pin feedback directly on your prototype.
       </h1>
-      <p className="hero-sub">
+      <p className="hero-sub landing-reveal landing-reveal-3">
         Prototype feedback arrives as screenshots and &quot;the button feels
         off.&quot; {BRAND_NAME} pins it to the actual button: on Vercel,
         Lovable, Replit, anywhere. One script tag for you; a link and a name
@@ -55,7 +109,7 @@ export default async function LandingPage() {
 
       {DEMO_KEY && (
         <>
-          <p className="try-callout">
+          <p className="try-callout landing-reveal landing-reveal-4">
             <span className="try-dot" aria-hidden />
             <span>
               Live on this page — press <kbd>C</kbd> and click anywhere, or
@@ -63,7 +117,7 @@ export default async function LandingPage() {
             </span>
           </p>
           {pinCount !== null && pinCount > 0 && (
-            <p className="pin-count muted">
+            <p className="pin-count muted landing-reveal landing-reveal-4">
               {pinCount === 1
                 ? "1 comment pinned on this page so far."
                 : `${pinCount} comments pinned on this page so far.`}
@@ -72,7 +126,7 @@ export default async function LandingPage() {
         </>
       )}
 
-      <div className="hero-cta">
+      <div className="hero-cta landing-reveal landing-reveal-5">
         <code className="snippet">{`<script async src="${CDN_URL}/w.js" data-pinmark="pk_live_YOUR_KEY"></script>`}</code>
         <p className="row" style={{ marginTop: 10 }}>
           <Link href="/login">
@@ -83,6 +137,8 @@ export default async function LandingPage() {
           </Link>
         </p>
       </div>
+
+      <FeedbackDemo />
 
       <section className="doc-section">
         <h2>How it works</h2>
