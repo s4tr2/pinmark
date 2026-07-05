@@ -418,7 +418,8 @@ export default function DocsPage() {
             self-hosted Supabase
           </a>
           ) and deploying <code>apps/web</code> anywhere Node runs. Full steps
-          — env vars, auth redirect URLs, a smoke test — are in{" "}
+          for environment variables, auth redirect URLs, and a smoke test are
+          in{" "}
           <a
             href="https://github.com/s4tr2/pinmark/blob/main/DEPLOY.md"
             target="_blank"

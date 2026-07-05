@@ -368,7 +368,7 @@ main.docs {
 
 .guide-index-heading {
   display: flex;
-  align-items: end;
+  align-items: flex-end;
   justify-content: space-between;
   gap: 24px;
   margin-bottom: 1rem;
@@ -770,6 +770,10 @@ main.landing {
 main.playground {
   position: relative;
   max-width: 800px;
+}
+
+main.playground .site-nav {
+  width: min(752px, calc(100vw - 48px));
 }
 
 .landing .hero-title {
@@ -1372,7 +1376,7 @@ main.playground {
 .brand-cross-line {
   stroke-linecap: round;
   transform-box: view-box;
-  transform-origin: 16px 12px;
+  transform-origin: 23px 23px;
 }
 
 .brand-cross-line-horizontal {

@@ -13,16 +13,16 @@ export function PinmarkLogo({ name }: { name: string }) {
       >
         <path
           className="brand-pin"
-          d="M16 27C16 27 24 18.3 24 12A8 8 0 1 0 8 12C8 18.3 16 27 16 27Z"
+          d="M13.5 4.5C8.25 4.5 4 8.75 4 14s4.25 9.5 9.5 9.5H23V14c0-5.25-4.25-9.5-9.5-9.5Z"
         />
         <g className="brand-cross">
           <path
-            className="brand-cross-line brand-cross-line-vertical"
-            d="M16 8.5V15.5"
+            className="brand-cross-line brand-cross-line-horizontal"
+            d="M17 23H29"
           />
           <path
-            className="brand-cross-line brand-cross-line-horizontal"
-            d="M12.5 12H19.5"
+            className="brand-cross-line brand-cross-line-vertical"
+            d="M23 17V29"
           />
         </g>
       </svg>
