@@ -1,32 +1,56 @@
 import Link from "next/link";
-import Script from "next/script";
-import { BRAND_NAME, CDN_URL } from "@/lib/config";
+import { BRAND_NAME } from "@/lib/config";
+import { PinmarkLogo } from "./pinmark-logo";
+import { ScrollReveal } from "./scroll-reveal";
+import { SiteNav } from "./site-nav";
 import { TactileClicks } from "./tactile-clicks";
 
-const DEMO_KEY = process.env.NEXT_PUBLIC_DEMO_KEY;
-
-// No decorative pins: the live widget's real pins — placed by actual
-// visitors — are the "page under review" concept, fulfilled honestly.
-// Fake pins would collide with real numbering (and did).
+const PLATFORMS = [
+  { name: "Vercel", domain: "vercel.com", guide: "nextjs" },
+  { name: "Lovable", domain: "lovable.dev", guide: "lovable" },
+  { name: "Replit", domain: "replit.com", guide: "replit" },
+  { name: "Webflow", domain: "webflow.com", guide: "webflow" },
+  { name: "Framer", domain: "framer.com", guide: "framer" },
+  { name: "Netlify", domain: "netlify.com", guide: "netlify" },
+  { name: "Bolt", domain: "bolt.new", guide: "bolt" },
+  { name: "v0", domain: "v0.dev", guide: "bolt" },
+  { name: "GitHub Pages", domain: "github.com", guide: "html" },
+] as const;
 
 export default function LandingPage() {
   return (
-    <main className="landing">
+    <main className="landing" id="landing-page">
+      <ScrollReveal rootId="landing-page" />
       <TactileClicks />
-      <nav className="crumbs landing-nav landing-reveal landing-reveal-1">
-        <span>{BRAND_NAME}</span>
-        <span>
-          <Link href="/docs">Docs</Link> ·{" "}
-          <Link href="/login">Sign in</Link>
-        </span>
-      </nav>
+      <SiteNav active="home" />
 
       <h1 className="hero-title landing-reveal landing-reveal-2">
-        Pin feedback to your prototype.
+        Pin{" "}
+        <span className="hero-feedback-demo">
+          <span className="hero-feedback-highlight" aria-hidden />
+          <span className="hero-feedback-word">feedback</span>
+          <span className="hero-feedback-cursor" aria-hidden>
+            <svg viewBox="0 0 24 24" width="20" height="20">
+              <path d="M5 3.5 19 12l-6.15 1.05 3.2 5.35-2.8 1.65-3.15-5.3L5 18.5v-15Z" />
+            </svg>
+          </span>
+          <span className="hero-feedback-pin" aria-hidden>
+            M
+          </span>
+          <span className="hero-feedback-comment" aria-hidden>
+            <span className="hero-feedback-comment-meta">
+              <strong>Maya</strong> · just now
+            </span>
+            <span className="hero-feedback-comment-body">
+              Can this be more specific?
+            </span>
+          </span>
+        </span>{" "}
+        to your prototype.
       </h1>
       <p className="hero-sub landing-reveal landing-reveal-3">
-        Add one script, then let reviewers comment on the exact UI—no accounts
-        or screenshots.
+        Add one script, then let reviewers comment on the exact UI. No accounts
+        or screenshots required.
       </p>
 
       <div className="hero-cta landing-reveal landing-reveal-4">
@@ -34,60 +58,116 @@ export default function LandingPage() {
           <Link href="/login">
             <button type="button">Get your snippet</button>
           </Link>
-          <Link href="/docs" className="muted">
-            Install guide
+          <Link href="/playground" className="muted">
+            Try the playground
           </Link>
         </p>
       </div>
 
-      {DEMO_KEY && (
-        <p className="try-callout landing-reveal landing-reveal-5">
-          <span className="try-dot" aria-hidden />
-          <span>
-            Try it here — press <kbd>C</kbd>, then click or drag.
-          </span>
+      <section className="landing-section" data-scroll-reveal>
+        <h2 className="landing-h2">Works where your prototype works</h2>
+        <ul className="platform-grid" aria-label="Supported platforms">
+          {PLATFORMS.map((platform) => (
+            <li className="platform-item" key={platform.name}>
+              <Link
+                className="platform-link"
+                href={`/docs#${platform.guide}`}
+                aria-label={`Install Pinmark on ${platform.name}`}
+              >
+                <img
+                  className="platform-logo"
+                  src={`https://icons.duckduckgo.com/ip3/${platform.domain}.ico`}
+                  alt=""
+                  width={20}
+                  height={20}
+                  loading="lazy"
+                  referrerPolicy="no-referrer"
+                />
+                <span>{platform.name}</span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+        <p className="muted">
+          Plus your own server. If it serves HTML, it works.{" "}
+          <Link href="/docs">Platform guides</Link>
         </p>
-      )}
+      </section>
 
-      <section className="landing-section">
+      <section className="landing-section" data-scroll-reveal>
         <h2 className="landing-h2">How it works</h2>
-        <div className="steps-grid">
-          <div className="step">
-            <span className="step-num">01</span>
+        <ol className="steps-grid">
+          <li className="step">
+            <div className="step-heading">
+              <span className="step-num">01</span>
+              <h3>Create a project</h3>
+            </div>
+            <p>Add the domains where your prototype lives.</p>
+          </li>
+          <li className="step">
+            <div className="step-heading">
+              <span className="step-num">02</span>
+              <h3>Paste the snippet</h3>
+            </div>
             <p>
-              <strong>Create a project.</strong> Name it, list the domains
-              your prototype lives on.
+              Add one script tag to <code>&lt;head&gt;</code>, then redeploy.
             </p>
-          </div>
-          <div className="step">
-            <span className="step-num">02</span>
-            <p>
-              <strong>Paste the snippet.</strong> One script tag in the{" "}
-              <code>&lt;head&gt;</code>. Redeploy.
-            </p>
-          </div>
-          <div className="step">
-            <span className="step-num">03</span>
-            <p>
-              <strong>Share the link you already share.</strong> Reviewers
-              pin comments on the UI itself; you triage from one dashboard.
-            </p>
-          </div>
+          </li>
+          <li className="step">
+            <div className="step-heading">
+              <span className="step-num">03</span>
+              <h3>Share your prototype</h3>
+            </div>
+            <p>Reviewers pin feedback directly on the UI.</p>
+          </li>
+        </ol>
+      </section>
+
+      <section
+        className="landing-section deployment-section"
+        data-scroll-reveal
+      >
+        <div className="deployment-heading">
+          <p className="deployment-kicker">Deployment</p>
+          <h2 className="landing-h2">
+            Go live in one tag, or own every layer.
+          </h2>
+        </div>
+        <div className="deployment-choices">
+          <article className="deployment-choice deployment-choice-primary">
+            <div className="deployment-choice-body">
+              <p className="deployment-label">Hosted</p>
+              <p className="deployment-headline">Paste a tag, go live.</p>
+              <p className="deployment-summary">
+                No database, no deploy. We run the backend.
+              </p>
+            </div>
+            <Link className="deployment-choice-action" href="/login">
+              Get your snippet
+            </Link>
+          </article>
+
+          <article className="deployment-choice">
+            <div className="deployment-choice-body">
+              <p className="deployment-label">Self-hosted</p>
+              <p className="deployment-headline">Every layer, yours.</p>
+              <p className="deployment-summary">
+                Run your own Supabase, deploy the app yourself. MIT-licensed.
+              </p>
+            </div>
+            <a
+              className="deployment-choice-action"
+              href="https://github.com/s4tr2/pinmark"
+              target="_blank"
+              rel="noreferrer"
+            >
+              View source
+            </a>
+          </article>
         </div>
       </section>
 
-      <section className="landing-section">
-        <h2 className="landing-h2">Works where your prototype works</h2>
-        <p className="platforms">
-          Vercel · Lovable · Replit · Webflow · Framer · Netlify · Bolt · v0
-          · GitHub Pages · your own server
-        </p>
-        <p className="muted">
-          If it serves HTML, it works. <Link href="/docs">Platform guides</Link>
-        </p>
-      </section>
-
-      <section className="landing-section">
+      <section className="landing-section" data-scroll-reveal>
         <h2 className="landing-h2">Reviewers stay anonymous</h2>
         <p style={{ maxWidth: "52ch" }}>
           No reviewer accounts, ever. A guest is a first name and a random
@@ -97,18 +177,31 @@ export default function LandingPage() {
         </p>
       </section>
 
-      <footer className="landing-footer">
-        <span className="footer-mark">{BRAND_NAME}</span>
-        <span className="muted">comments for coded prototypes</span>
+      <footer className="landing-footer" data-scroll-reveal>
+        <div className="footer-brand">
+          <span className="footer-brand-mark">
+            <PinmarkLogo name={BRAND_NAME} />
+            <span className="footer-pin" aria-hidden />
+          </span>
+        </div>
+        <nav className="footer-links" aria-label="More">
+          <a
+            href="https://github.com/s4tr2/pinmark"
+            target="_blank"
+            rel="noreferrer"
+          >
+            GitHub
+          </a>
+          <Link href="/docs">Docs</Link>
+          <a
+            href="https://github.com/s4tr2/pinmark/blob/main/LICENSE"
+            target="_blank"
+            rel="noreferrer"
+          >
+            MIT licensed
+          </a>
+        </nav>
       </footer>
-
-      {DEMO_KEY && (
-        <Script
-          src={`${CDN_URL}/w.js`}
-          data-pinmark={DEMO_KEY}
-          strategy="afterInteractive"
-        />
-      )}
     </main>
   );
 }
