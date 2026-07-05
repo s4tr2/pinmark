@@ -1358,6 +1358,17 @@ main.playground .site-nav {
   text-decoration: none;
 }
 
+.brand-lockup-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.nav-self-hosted-tag {
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
 .brand-mark {
   display: block;
   flex: 0 0 auto;

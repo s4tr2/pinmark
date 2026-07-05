@@ -2,8 +2,8 @@ import { defineConfig } from "@playwright/test";
 
 // E2E strategy: fixtures are served statically (no Next.js, no database) and
 // /api/v1/* is intercepted with an in-memory fake per test. This exercises
-// the full widget — loader, closed shadow DOM, comment mode, anchoring,
-// persistence — hermetically. Real-stack e2e arrives with the docker-compose
+// the full widget: loader, closed shadow DOM, comment mode, anchoring,
+// persistence, hermetically. Real-stack e2e arrives with the docker-compose
 // self-host verification (M6).
 export default defineConfig({
   testDir: "./e2e",

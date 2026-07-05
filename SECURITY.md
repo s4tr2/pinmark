@@ -13,12 +13,16 @@ this size.
   response
 - Rate-limit bypass that enables abuse of a project's comment volume
 - Review-link mode (`access_mode`) being bypassed without the token
+- Page-commenting-rules bypass (`commenting_scope` / `commenting_paths`
+  enforced on the wrong route)
+- `/api/health` returning a secret, token, connection string, or raw error
+  detail instead of the boolean/enum status it is designed to return
 
 ## Not in scope
 
-- The widget being visible/inspectable in a host page's DOM — that's by
+- The widget being visible/inspectable in a host page's DOM, that's by
   design, not a vulnerability
-- Missing features, or the self-hosted deploy lacking docker-compose
+- Missing features, or the self-hosted deploy lacking a turnkey Docker stack
 
 ## Reporting
 
@@ -27,5 +31,6 @@ Please report privately rather than opening a public issue: open a
 for this repo.
 
 Include what you found, how to reproduce it, and impact if known. This is a
-solo-maintained project — expect an initial response within a few days, not
-hours. No bug bounty program exists today.
+solo-maintained project: expect an initial response within a few days, not
+hours. No bug bounty program exists today. Self-hosters get the same
+best-effort support as anyone else; there is no separate SLA.

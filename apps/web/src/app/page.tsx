@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { BRAND_NAME } from "@/lib/config";
+import { redirect } from "next/navigation";
+import { BRAND_NAME, SELF_HOSTED } from "@/lib/config";
 import { PinmarkLogo } from "./pinmark-logo";
 import { ScrollReveal } from "./scroll-reveal";
 import { SiteNav } from "./site-nav";
@@ -18,6 +19,10 @@ const PLATFORMS = [
 ] as const;
 
 export default function LandingPage() {
+  // Self-hosted instances serve the product, not the marketing site.
+  // /login itself redirects on to /dashboard when already signed in.
+  if (SELF_HOSTED) redirect("/login");
+
   return (
     <main className="landing" id="landing-page">
       <ScrollReveal rootId="landing-page" />

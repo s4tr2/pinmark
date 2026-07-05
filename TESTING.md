@@ -3,7 +3,7 @@
 ## Commands
 
 ```sh
-pnpm test          # unit tests (Vitest) — both packages
+pnpm test          # unit tests (Vitest), both packages
 pnpm test:watch    # watch mode for TDD
 pnpm e2e           # Playwright widget e2e (hermetic, no infra needed)
 pnpm --filter widget build   # includes the HARD bundle-size gate
@@ -13,14 +13,14 @@ CI (`.github/workflows/ci.yml`) runs all of the above on every push and PR.
 
 ## What is tested, and why these things
 
-The suites protect the two places where a silent regression hurts most:
+The suites protect the places where a silent regression hurts most:
 
 **Security invariants** (`apps/web/src/lib/api/guard.test.ts`, `validate.test.ts`, `domains.test.ts`)
 - Allowlist semantics: dot-anchored wildcards (`notlovable.app` must never
   match `*.lovable.app`), localhost rules, hostile inputs. A failure here is
   an allowlist bypass, not a style issue.
 - Write validation matrix: body/name lengths, UUID shapes, anchor rules.
-- `PUBLIC_COLUMNS` must never contain `author_token` — the guest identity
+- `PUBLIC_COLUMNS` must never contain `author_token`: the guest identity
   token is write-proof-only, never readable.
 - Domain input normalization, including the 2026-07-03 production incident
   (full URL pasted into the allowlist → widget silently invisible) as a
@@ -36,12 +36,12 @@ The suites protect the two places where a silent regression hurts most:
 - Region (area comment) math, element-relative and page-relative.
 
 jsdom has no layout engine, so tests assign explicit geometry via a
-`setRect` helper — positioning math runs against real numbers.
+`setRect` helper, positioning math runs against real numbers.
 
 **Widget e2e** (`e2e/widget.spec.ts`, Playwright)
 Fixtures in `apps/web/public/` are served statically; `/api/v1/*` is
-intercepted with an in-memory fake per test. No database, no Next server —
-hermetic and fast — while the widget itself runs for real: loader, closed
+intercepted with an in-memory fake per test. No database, no Next server,
+hermetic and fast, while the widget itself runs for real: loader, closed
 shadow DOM, keyboard-driven composer, persistence.
 
 Covered acceptance criteria: pin survives reload; XSS payloads stay inert;
@@ -49,7 +49,17 @@ the widget mounts and works on `hostile.html` (a `* { all: unset }` reset
 page); no key → completely dormant.
 
 The closed shadow root is deliberately impenetrable to Playwright, so the
-widget exposes one observable — `window.__pinmark.pins` — for assertions.
+widget exposes one observable, `window.__pinmark.pins`, for assertions.
+
+**Deployment surface** (`apps/web/src/lib/config.test.ts`, `health.test.ts`)
+- `SELF_HOSTED` parses only the exact string `"true"`; anything else,
+  including unset, keeps hosted behavior.
+- `/api/health`'s underlying checks never put a secret value, connection
+  string, or raw error message into their return value, checked
+  structurally (serialize the report, assert no secret-shaped string
+  appears), not just by inspection.
+- `scripts/check-migrations.mjs` (not a Vitest suite, run directly in CI)
+  fails if a migration filename is malformed or out of order.
 
 ## The TDD rule for this repo
 
@@ -64,10 +74,16 @@ bug as a failing test *first*; the domains suite shows the pattern.
 
 ## Gaps, honestly
 
-- No real-stack e2e (live Supabase + Next API): arrives with docker-compose
-  self-host verification. The API is unit-tested at the validation layer and
-  its DB queries are thin.
+- No real-stack e2e (live Supabase + Next API). CI does build both hosted
+  and self-hosted modes (`next build` with and without
+  `NEXT_PUBLIC_SELF_HOSTED=true`), which catches crashes and type errors,
+  but that is a build-time check, not a behavioral one. The actual
+  redirect/nav-hiding behavior for self-hosted mode is verified manually
+  against `pnpm dev`, not automated, same gap as the API's DB queries
+  being thin at the unit layer.
 - No `fixtures/spa-demo` React-router fixture yet; SPA route tracking is
   covered indirectly and manually.
 - Dashboard server actions rely on RLS (verified manually via the API
   sweeps); RLS policy tests need a live database.
+- No turnkey docker-compose self-host verification yet (tracked, see
+  DEPLOY.md); real-stack e2e most naturally arrives alongside it.

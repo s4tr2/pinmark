@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { signOut } from "@/lib/actions";
-import { BRAND_NAME } from "@/lib/config";
+import { BRAND_NAME, SELF_HOSTED } from "@/lib/config";
 import { PinmarkLogo } from "./pinmark-logo";
 
 type NavPage = "home" | "playground" | "docs" | "login" | "dashboard";
@@ -23,23 +23,32 @@ export function SiteNav({
       className={`site-nav ${className}`.trim()}
       aria-label="Primary navigation"
     >
-      <PinmarkLogo name={BRAND_NAME} />
+      <span className="brand-lockup-group">
+        <PinmarkLogo name={BRAND_NAME} />
+        {SELF_HOSTED && signedIn && (
+          <span className="tag nav-self-hosted-tag">Self-hosted</span>
+        )}
+      </span>
       <div className="nav-actions">
-        <Link
-          className="nav-link nav-playground"
-          href="/playground"
-          aria-current={current(active, "playground")}
-        >
-          Playground
-        </Link>
-        <a
-          className="nav-link nav-source"
-          href="https://github.com/s4tr2/pinmark"
-          target="_blank"
-          rel="noreferrer"
-        >
-          Open source
-        </a>
+        {!SELF_HOSTED && (
+          <Link
+            className="nav-link nav-playground"
+            href="/playground"
+            aria-current={current(active, "playground")}
+          >
+            Playground
+          </Link>
+        )}
+        {!SELF_HOSTED && (
+          <a
+            className="nav-link nav-source"
+            href="https://github.com/s4tr2/pinmark"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Open source
+          </a>
+        )}
         <Link
           className="nav-link nav-install"
           href="/docs"

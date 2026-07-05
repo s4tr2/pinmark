@@ -10,6 +10,8 @@
     "db:start": "supabase start",
     "db:stop": "supabase stop",
     "db:reset": "supabase db reset",
+    "setup:self-host": "node scripts/setup-self-host.mjs",
+    "check:migrations": "node scripts/check-migrations.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
     "e2e": "playwright test"

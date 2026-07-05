@@ -31,6 +31,22 @@ jobs:
       - name: Install
         run: pnpm install --frozen-lockfile
 
+      - name: Required documentation exists
+        run: |
+          for f in README.md DEPLOY.md SECURITY.md CONTRIBUTING.md .env.example ARCHITECTURE.md; do
+            test -f "$f" || { echo "Missing required file: $f"; exit 1; }
+          done
+
+      - name: No em dashes in docs or source
+        run: |
+          if git ls-files '*.md' '*.ts' '*.tsx' | xargs grep -lP '\x{2014}'; then
+            echo "Em dashes found in the files above. Use commas, colons, or periods instead."
+            exit 1
+          fi
+
+      - name: Migrations are ordered and well-named
+        run: node scripts/check-migrations.mjs
+
       - name: Typecheck
         run: pnpm typecheck
 
@@ -40,8 +56,20 @@ jobs:
       - name: Build widget (hard bundle-size gate)
         run: pnpm --filter widget build
 
-      - name: Build web
+      - name: Build web (hosted mode)
         run: pnpm --filter web build
+
+      - name: No server secrets in client bundle
+        run: |
+          if grep -r "$SUPABASE_SERVICE_ROLE_KEY" apps/web/.next/static 2>/dev/null; then
+            echo "Service-role key value leaked into the client bundle."
+            exit 1
+          fi
+
+      - name: Build web (self-hosted mode)
+        run: pnpm --filter web build
+        env:
+          NEXT_PUBLIC_SELF_HOSTED: "true"
 
       - name: Install Playwright
         run: npx playwright install --with-deps chromium

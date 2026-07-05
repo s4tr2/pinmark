@@ -21,7 +21,15 @@ apps/web/           Next.js app: dashboard, guest API routes, docs, landing
 packages/widget/    Vanilla-TS widget (loader + core), Vite, shadow DOM
 supabase/           SQL migrations (schema + RLS)
 e2e/                Playwright widget tests
+scripts/            Node scripts: setup-self-host.mjs, check-migrations.mjs
 ```
+
+To test self-hosted mode locally, set `NEXT_PUBLIC_SELF_HOSTED=true` in
+`apps/web/.env.local` and restart `pnpm dev`; `/` should redirect to
+`/login` instead of showing the landing page. See
+[ARCHITECTURE.md](ARCHITECTURE.md) for how the codebase is organized
+around hosted vs. self-hosted, and [DEPLOY.md](DEPLOY.md) for what the
+flag changes.
 
 ## Rules that will come up in review
 
@@ -32,14 +40,14 @@ e2e/                Playwright widget tests
    The widget build fails over budget. No React/framework code in the widget.
 3. **Never render guest content as HTML.** `textContent` in the widget,
    JSX text in the dashboard, plain-text email. No `innerHTML` with user
-   data, ever — the only `innerHTML` in the codebase is a static SVG string.
+   data, ever: the only `innerHTML` in the codebase is a static SVG string.
 4. **`author_token` never leaves the server** on read paths. Guests prove
    ownership on writes; the widget tracks its own comment ids locally.
 5. **The widget must never break a host page**: no globals beyond
    `window.__pinmark`, no thrown errors, one namespaced console warning max,
    all styles inside the closed shadow root.
 6. **Secrets stay in `.env.local`** (gitignored). `.env.example` is a
-   template — placeholder values only.
+   template, placeholder values only.
 
 ## License
 

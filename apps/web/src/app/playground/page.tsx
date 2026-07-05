@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import Script from "next/script";
-import { BRAND_NAME, CDN_URL } from "@/lib/config";
+import { BRAND_NAME, CDN_URL, SELF_HOSTED } from "@/lib/config";
 import { SiteNav } from "../site-nav";
 
 const DEMO_KEY = process.env.NEXT_PUBLIC_DEMO_KEY;
+const SHOW_DEMO = Boolean(DEMO_KEY) && !SELF_HOSTED;
 
 export const metadata: Metadata = {
   title: `Playground · ${BRAND_NAME}`,
@@ -37,7 +38,7 @@ export default function PlaygroundPage() {
         </div>
       </section>
 
-      {DEMO_KEY ? (
+      {SHOW_DEMO ? (
         <>
           <section className="playground-surface" aria-label="Demo prototype">
             <header className="playground-window-bar">
@@ -102,6 +103,14 @@ export default function PlaygroundPage() {
             information.
           </p>
         </>
+      ) : SELF_HOSTED ? (
+        <div className="playground-unavailable">
+          <strong>The playground is not part of self-hosted instances.</strong>
+          <span>
+            It exists to demo the hosted product. Install the widget on your
+            own prototype instead. See /docs.
+          </span>
+        </div>
       ) : (
         <div className="playground-unavailable">
           <strong>The playground is not connected yet.</strong>
@@ -111,7 +120,7 @@ export default function PlaygroundPage() {
         </div>
       )}
 
-      {DEMO_KEY && (
+      {SHOW_DEMO && (
         <Script
           src={`${CDN_URL}/w.js`}
           data-pinmark={DEMO_KEY}
