@@ -26,7 +26,7 @@ export async function notifyNewComment(
     const dashboardLink = `${APP_URL}/p/${project.id}`;
 
     // Email: batched via notification_log
-    // (Slack integration cut from v1 — the dormant slack_webhook_url column
+    // (Slack integration cut from v1. The dormant slack_webhook_url column
     // remains in the schema for a future opt-in feature.)
     const mailer = getMailer();
     if (!mailer || !project.notify_email) return;
@@ -57,7 +57,7 @@ export async function notifyNewComment(
       to,
       `New comment on ${project.name}`,
       `${authorName} commented on ${route}:\n\n"${body.slice(0, 300)}"\n\n` +
-        `View and reply: ${dashboardLink}\n\n— ${BRAND_NAME}`
+        `View and reply: ${dashboardLink}\n\n${BRAND_NAME}`
     );
   } catch (e) {
     console.warn("[pinmark] notification failed:", (e as Error).message);

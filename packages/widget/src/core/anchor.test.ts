@@ -46,7 +46,7 @@ beforeEach(() => {
   setPageSize(1280, 2000);
 });
 
-describe("generateSelector — stability ladder (PRD §5.3)", () => {
+describe("generateSelector: stability ladder (PRD §5.3)", () => {
   it("prefers the element's own stable id", () => {
     document.body.innerHTML = `<button id="pay-button">Pay</button>`;
     const el = document.getElementById("pay-button")!;
@@ -131,7 +131,7 @@ describe("generateSelector — stability ladder (PRD §5.3)", () => {
   });
 });
 
-describe("buildAnchor — layered anchor construction", () => {
+describe("buildAnchor: layered anchor construction", () => {
   it("stores element offset + page fallback for anchored clicks", () => {
     document.body.innerHTML = `<button id="cta">Go</button>`;
     const el = document.getElementById("cta")!;
@@ -153,7 +153,7 @@ describe("buildAnchor — layered anchor construction", () => {
   });
 });
 
-describe("resolveAnchor — layered resolution", () => {
+describe("resolveAnchor: layered resolution", () => {
   it("positions by element rect when the selector resolves", () => {
     document.body.innerHTML = `<button id="cta">Go</button>`;
     const el = document.getElementById("cta")!;
@@ -182,7 +182,7 @@ describe("resolveAnchor — layered resolution", () => {
       viewport: { w: 1280, h: 800 },
     });
     expect(pos.el).toBeNull();
-    expect(pos.approximate).toBe(true); // visible but honest — never wrong element
+    expect(pos.approximate).toBe(true); // visible but honest, never wrong element
     expect(pos.x).toBeCloseTo(0.25 * 1280);
     expect(pos.y).toBeCloseTo(0.5 * 2000);
   });

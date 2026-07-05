@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { corsHeaders, guardGuestRequest } from "@/lib/api/guard";
 import { withinWriteLimit } from "@/lib/api/ratelimit";
+import { commentingEnabledOnRoute } from "@/lib/page-rules";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 export const dynamic = "force-dynamic";
@@ -43,7 +44,7 @@ async function loadOwnComment(
   const supabase = createAdminClient();
   const { data: comment } = await supabase
     .from("comments")
-    .select("id, project_id, author_token, created_at")
+    .select("id, project_id, author_token, route, created_at")
     .eq("id", id)
     .single();
 
@@ -54,6 +55,15 @@ async function loadOwnComment(
     comment.author_token !== authorToken
   )
     return fail("not_found", 404);
+
+  if (
+    !commentingEnabledOnRoute(
+      comment.route,
+      guard.project.commenting_scope,
+      guard.project.commenting_paths ?? []
+    )
+  )
+    return fail("page_not_enabled", 403);
 
   if (Date.now() - new Date(comment.created_at).getTime() > EDIT_WINDOW_MS)
     return fail("edit_window_expired", 403);

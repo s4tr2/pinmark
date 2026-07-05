@@ -6,6 +6,10 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { APP_URL } from "@/lib/config";
 import { parseDomains } from "@/lib/domains";
+import {
+  parseCommentingPaths,
+  type CommentingScope,
+} from "@/lib/page-rules";
 
 export async function sendMagicLink(formData: FormData) {
   const email = String(formData.get("email") ?? "").trim();
@@ -90,6 +94,38 @@ export async function updateAccessMode(formData: FormData) {
   const { error } = await supabase
     .from("projects")
     .update({ access_mode: mode })
+    .eq("id", id);
+
+  if (error) redirect(`/p/${id}?error=${encodeURIComponent(error.message)}`);
+  revalidatePath(`/p/${id}`);
+  redirect(`/p/${id}?saved=1`);
+}
+
+export async function updateCommentingScope(formData: FormData) {
+  const supabase = createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+
+  const id = String(formData.get("id"));
+  const scope = String(formData.get("commenting_scope")) as CommentingScope;
+  if (!["all", "include", "exclude"].includes(scope)) {
+    redirect(`/p/${id}?error=Invalid+page+scope`);
+  }
+
+  let paths: string[];
+  try {
+    paths = parseCommentingPaths(String(formData.get("commenting_paths") ?? ""));
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "Invalid page paths";
+    redirect(`/p/${id}?error=${encodeURIComponent(message)}`);
+  }
+
+  const { error } = await supabase
+    .from("projects")
+    .update({ commenting_scope: scope, commenting_paths: paths })
     .eq("id", id);
 
   if (error) redirect(`/p/${id}?error=${encodeURIComponent(error.message)}`);

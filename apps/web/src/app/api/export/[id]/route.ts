@@ -42,7 +42,7 @@ function fmtDate(iso: string): string {
 function toMarkdown(name: string, comments: ExportComment[]): string {
   const { byRoute, repliesFor } = groupThreads(comments);
   const lines: string[] = [
-    `# Feedback — ${name}`,
+    `# Feedback: ${name}`,
     "",
     `Exported ${fmtDate(new Date().toISOString())} · ${byRoute.size} route(s), ${
       comments.filter((c) => !c.parent_id).length
@@ -55,7 +55,7 @@ function toMarkdown(name: string, comments: ExportComment[]): string {
     pins.forEach((pin, i) => {
       const status = pin.resolved ? " · ✅ resolved" : "";
       lines.push(
-        `### ${i + 1}. ${pin.author_name} — ${fmtDate(pin.created_at)}${status}`,
+        `### ${i + 1}. ${pin.author_name} · ${fmtDate(pin.created_at)}${status}`,
         "",
         `> ${pin.body.replace(/\n/g, "\n> ")}`,
         ""
@@ -78,7 +78,7 @@ function toDocx(name: string, comments: ExportComment[]): Document {
   const children: Paragraph[] = [
     new Paragraph({
       heading: HeadingLevel.HEADING_1,
-      children: [new TextRun(`Feedback — ${name}`)],
+      children: [new TextRun(`Feedback: ${name}`)],
     }),
     new Paragraph({
       children: [

@@ -3,7 +3,7 @@ import { hostnameAllowed } from "./guard";
 
 // The allowlist is a security boundary: every rule here is load-bearing.
 // If a change breaks one of these cases, it is an allowlist bypass or an
-// availability regression — not a style preference.
+// availability regression, not a style preference.
 describe("hostnameAllowed", () => {
   describe("exact matches", () => {
     it("matches an exact hostname", () => {

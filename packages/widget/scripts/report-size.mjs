@@ -1,6 +1,6 @@
 // Enforces gzipped bundle budgets (PRD §5.1 / acceptance criteria):
 // loader 3 KB, core 40 KB. Exits non-zero over budget, so `pnpm --filter
-// widget build` — and therefore CI — fails hard.
+// widget build`, and therefore CI, fails hard.
 import { readFileSync } from "node:fs";
 import { gzipSync } from "node:zlib";
 import { resolve } from "node:path";
@@ -22,6 +22,6 @@ for (const [file, budget] of budgets) {
   );
 }
 if (failed) {
-  console.error("Bundle size budget exceeded — build failed.");
+  console.error("Bundle size budget exceeded. Build failed.");
   process.exit(1);
 }

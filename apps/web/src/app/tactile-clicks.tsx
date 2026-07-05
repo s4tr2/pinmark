@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 
-// Synthesized "thock" for landing-page buttons — the mechanical-keyboard
+// Synthesized "thock" for landing-page buttons in the mechanical-keyboard
 // school, not the electronic-beep school. Two layers: a filtered noise
 // transient (the click your ear expects from a physical mechanism) plus a
 // low sine thump for body. No audio files, no network; the AudioContext is
@@ -19,7 +19,7 @@ function playThock() {
     // slight per-click variation so rapid clicks don't sound machine-gunned
     const vary = 0.92 + Math.random() * 0.16;
 
-    // layer 1: 12ms noise transient through a lowpass — the "click"
+    // layer 1: 12ms noise transient through a lowpass, the "click"
     if (!noiseBuffer) {
       noiseBuffer = ctx.createBuffer(1, ctx.sampleRate * 0.012, ctx.sampleRate);
       const data = noiseBuffer.getChannelData(0);
@@ -37,7 +37,7 @@ function playThock() {
     noise.connect(noiseFilter).connect(noiseGain).connect(ctx.destination);
     noise.start(t);
 
-    // layer 2: low sine thump with a fast pitch drop — the "body"
+    // layer 2: low sine thump with a fast pitch drop, the "body"
     const thump = ctx.createOscillator();
     const thumpGain = ctx.createGain();
     thump.type = "sine";
@@ -49,7 +49,7 @@ function playThock() {
     thump.start(t);
     thump.stop(t + 0.08);
   } catch {
-    /* audio unavailable — silence is a fine fallback */
+    /* audio unavailable; silence is a fine fallback */
   }
 }
 

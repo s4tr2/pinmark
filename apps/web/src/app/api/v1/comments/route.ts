@@ -3,6 +3,7 @@ import { corsHeaders, guardGuestRequest } from "@/lib/api/guard";
 import { withinReadLimit, withinWriteLimit } from "@/lib/api/ratelimit";
 import { PUBLIC_COLUMNS, validateCommentInput } from "@/lib/api/validate";
 import { notifyNewComment } from "@/lib/notify";
+import { commentingEnabledOnRoute } from "@/lib/page-rules";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 export const dynamic = "force-dynamic";
@@ -21,13 +22,25 @@ export async function GET(req: NextRequest) {
   );
   if (!guard.ok) return guard.response;
 
+  const route = (searchParams.get("route") ?? "/").slice(0, 500);
+  if (
+    !commentingEnabledOnRoute(
+      route,
+      guard.project.commenting_scope,
+      guard.project.commenting_paths ?? []
+    )
+  )
+    return NextResponse.json(
+      { error: "page_not_enabled" },
+      { status: 403, headers: corsHeaders(guard.origin) }
+    );
+
   if (!withinReadLimit(guard.project.public_key, req))
     return NextResponse.json(
       { error: "rate_limited" },
       { status: 429, headers: corsHeaders(guard.origin) }
     );
 
-  const route = searchParams.get("route") ?? "/";
   const allRoutes = searchParams.get("all") === "1"; // widget threads panel
   const supabase = createAdminClient();
 
@@ -55,13 +68,27 @@ export async function GET(req: NextRequest) {
     );
   }
 
+  const visibleComments = (comments ?? []).filter((comment) =>
+    commentingEnabledOnRoute(
+      comment.route,
+      guard.project.commenting_scope,
+      guard.project.commenting_paths ?? []
+    )
+  );
   const counts: Record<string, number> = {};
   for (const row of openPins ?? []) {
-    counts[row.route] = (counts[row.route] ?? 0) + 1;
+    if (
+      commentingEnabledOnRoute(
+        row.route,
+        guard.project.commenting_scope,
+        guard.project.commenting_paths ?? []
+      )
+    )
+      counts[row.route] = (counts[row.route] ?? 0) + 1;
   }
 
   return NextResponse.json(
-    { comments: comments ?? [], counts },
+    { comments: visibleComments, counts },
     { headers: corsHeaders(guard.origin) }
   );
 }
@@ -97,6 +124,18 @@ export async function POST(req: NextRequest) {
   const { route, body, authorName, authorToken, parentId, anchor } =
     validated.input;
 
+  if (
+    !commentingEnabledOnRoute(
+      route,
+      guard.project.commenting_scope,
+      guard.project.commenting_paths ?? []
+    )
+  )
+    return NextResponse.json(
+      { error: "page_not_enabled" },
+      { status: 403, headers }
+    );
+
   const supabase = createAdminClient();
 
   const { count: existing } = await supabase
@@ -113,10 +152,15 @@ export async function POST(req: NextRequest) {
     // Reply: parent must be a top-level pin in the same project
     const { data: parent } = await supabase
       .from("comments")
-      .select("id, project_id, parent_id")
+      .select("id, project_id, parent_id, route")
       .eq("id", parentId)
       .single();
-    if (!parent || parent.project_id !== guard.project.id || parent.parent_id)
+    if (
+      !parent ||
+      parent.project_id !== guard.project.id ||
+      parent.parent_id ||
+      parent.route !== route
+    )
       return bad("parent_not_found");
   } else if (!anchor) {
     return bad("anchor_required");

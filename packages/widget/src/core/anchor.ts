@@ -2,7 +2,7 @@ import type { Anchor, RegionRect } from "./api";
 
 // Auto-generated-looking ids are unstable across builds (PRD §5.3)
 const UNSTABLE_ID = /\d{3,}|^:|^radix-|^headlessui-/;
-// Framework mount nodes: stable but useless as anchors — an offset inside a
+// Framework mount nodes are stable but useless as anchors. An offset inside a
 // whole-page container reflows almost as badly as page percentages.
 const CONTAINER_ID = /^(root|app|__next|__nuxt|app-root)$/i;
 const TESTID_ATTRS = ["data-testid", "data-test", "data-cy"];
@@ -62,7 +62,7 @@ function nthOfType(el: Element): number {
 /**
  * Semantic path: tag + nth-of-type segments from the target up to the
  * nearest stable-selector ancestor (container ids like #root are fine as
- * path ROOTS — "#root > … > button" is precise even though #root alone
+ * path ROOTS. "#root > … > button" is precise even though #root alone
  * isn't). Never class names (PRD §5.3).
  */
 function semanticPath(el: Element): string | null {
@@ -80,7 +80,7 @@ function semanticPath(el: Element): string | null {
       if (stable) {
         const s = `${stable.selector} > ${segments.join(" > ")}`;
         if (isUnique(s)) return s;
-        // ambiguous under this root — keep climbing with plain segments
+        // ambiguous under this root, so keep climbing with plain segments
       }
     }
 
@@ -95,10 +95,10 @@ function semanticPath(el: Element): string | null {
 /**
  * Selector generation at pin time (PRD §5.3), most precise first:
  * 1. the clicked element's own stable hook (id / testid / aria-label)
- * 2. semantic path from the element to the nearest stable ancestor —
+ * 2. semantic path from the element to the nearest stable ancestor;
  *    keeps the anchor on the exact element even in deep, hook-less DOMs
  * 3. a stable ancestor + offset within it (coarse, reflows inside)
- * 4. nothing — page_pct fallback
+ * 4. nothing, using the page_pct fallback
  * Container-like elements (framework mounts, near-viewport-size boxes)
  * are rejected as direct anchors at every step.
  */
@@ -253,7 +253,7 @@ export function resolveAnchor(anchor: Anchor): ResolvedPosition {
     try {
       el = document.querySelector(anchor.selector);
     } catch {
-      /* invalid selector — fall through */
+      /* invalid selector, so fall through */
     }
     if (el && isVisible(el)) {
       const rect = el.getBoundingClientRect();

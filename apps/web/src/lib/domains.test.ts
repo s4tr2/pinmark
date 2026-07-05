@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { parseDomains } from "./domains";
 
 describe("parseDomains", () => {
-  // Regression: 2026-07-03 — a full URL pasted into the allowed-domains
+  // Regression from 2026-07-03: a full URL pasted into the allowed-domains
   // field never matched the hostname-based allowlist, so the widget stayed
   // silently invisible on that site.
   it("extracts the hostname from a pasted full URL with a path", () => {

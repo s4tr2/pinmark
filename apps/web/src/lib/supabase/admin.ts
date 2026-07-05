@@ -1,6 +1,6 @@
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 
-// Service-role client for the guest API layer. Bypasses RLS — every call site
+// Service-role client for the guest API layer. It bypasses RLS, so every call site
 // must scope queries by project_id resolved from a validated public key.
 export function createAdminClient() {
   return createSupabaseClient(

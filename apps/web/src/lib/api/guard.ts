@@ -1,5 +1,6 @@
 import { timingSafeEqual } from "node:crypto";
 import { NextResponse, type NextRequest } from "next/server";
+import type { CommentingScope } from "@/lib/page-rules";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 function tokensMatch(provided: string | null, expected: string): boolean {
@@ -15,6 +16,8 @@ export type GuestProject = {
   allowed_domains: string[];
   access_mode: "open" | "review_link";
   review_token: string;
+  commenting_scope: CommentingScope;
+  commenting_paths: string[];
 };
 
 /**
@@ -87,7 +90,9 @@ async function lookupProject(key: string): Promise<GuestProject | null> {
   const supabase = createAdminClient();
   const { data: project } = await supabase
     .from("projects")
-    .select("id, public_key, allowed_domains, access_mode, review_token")
+    .select(
+      "id, public_key, allowed_domains, access_mode, review_token, commenting_scope, commenting_paths"
+    )
     .eq("public_key", key)
     .single();
 
@@ -101,7 +106,7 @@ async function lookupProject(key: string): Promise<GuestProject | null> {
 
 /**
  * Validates public key + request origin against the project's allowlist,
- * and — for review_link projects — the secret review token.
+ * and, for review_link projects, the secret review token.
  */
 export async function guardGuestRequest(
   req: NextRequest,
@@ -110,7 +115,7 @@ export async function guardGuestRequest(
 ): Promise<GuardResult> {
   // Every rejection carries CORS headers: without them the browser hides
   // the error body and the widget (and its console warning) can only say
-  // "Failed to fetch" — undiagnosable for users. Exposing the error code
+  // "Failed to fetch", which is undiagnosable for users. Exposing the error code
   // to any origin leaks nothing: the codes are self-describing rejections.
   const origin = requestOrigin(req);
   const reject = (error: string, status: number) =>

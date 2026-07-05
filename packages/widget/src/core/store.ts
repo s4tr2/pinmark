@@ -8,7 +8,7 @@ function safeGet(key: string): string | null {
   try {
     return localStorage.getItem(key);
   } catch {
-    return null; // storage blocked (sandboxed iframe etc.) — degrade to session-only
+    return null; // storage blocked (sandboxed iframe etc.), use session-only
   }
 }
 

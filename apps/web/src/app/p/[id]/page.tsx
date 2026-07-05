@@ -10,9 +10,12 @@ import {
   resolveAllThreads,
   resolveThread,
   updateAccessMode,
+  updateCommentingScope,
   updateDomains,
 } from "@/lib/actions";
 import { snippetFor } from "@/lib/config";
+import { ScrollReveal } from "../../scroll-reveal";
+import { SiteNav } from "../../site-nav";
 import { CopyButton } from "./copy-button";
 
 function ReviewLink({
@@ -32,7 +35,7 @@ function ReviewLink({
   return (
     <>
       <p className="muted">
-        Share this review link — anyone who opens it once can see pins and
+        Share this review link. Anyone who opens it once can see pins and
         comment in that browser:
       </p>
       <code className="snippet">{link}</code>
@@ -186,7 +189,7 @@ export default async function ProjectPage({
   const { data: project } = await supabase
     .from("projects")
     .select(
-      "id, name, public_key, allowed_domains, access_mode, review_token, created_at"
+      "id, name, public_key, allowed_domains, access_mode, review_token, commenting_scope, commenting_paths, created_at"
     )
     .eq("id", params.id)
     .single();
@@ -201,20 +204,24 @@ export default async function ProjectPage({
 
   const filter = searchParams.filter === "resolved" ? "resolved" : "open";
   const snippet = snippetFor(project.public_key);
+  const pageId = `project-page-${project.id}`;
 
   return (
-    <main>
-      <p>
-        <Link href="/dashboard">← Projects</Link>
-      </p>
-      <h1>{project.name}</h1>
+    <main className="product-page" id={pageId}>
+      <ScrollReveal rootId={pageId} />
+      <SiteNav active="dashboard" signedIn />
+      <header className="product-page-heading">
+        <p className="product-kicker">
+          <Link href="/dashboard">← Projects</Link>
+        </p>
+        <h1>{project.name}</h1>
+        {searchParams.error && (
+          <p style={{ color: "var(--danger)" }}>{searchParams.error}</p>
+        )}
+        {searchParams.saved && <p className="muted">Saved.</p>}
+      </header>
 
-      {searchParams.error && (
-        <p style={{ color: "var(--danger)" }}>{searchParams.error}</p>
-      )}
-      {searchParams.saved && <p className="muted">Saved.</p>}
-
-      <div className="card">
+      <div className="card" data-scroll-reveal="self">
         <h2>Install snippet</h2>
         <p className="muted">
           Paste into your prototype&apos;s <code>&lt;head&gt;</code> or
@@ -233,12 +240,12 @@ export default async function ProjectPage({
         </p>
         <p className="muted">
           Regenerating the key immediately disables the old snippet everywhere
-          it&apos;s embedded — you&apos;ll need to paste the new one into your
+          it&apos;s embedded. You&apos;ll need to paste the new one into your
           prototype. Comments are kept.
         </p>
       </div>
 
-      <div className="card">
+      <div className="card" data-scroll-reveal="self">
         <h2>Threads</h2>
         <p className="row" style={{ justifyContent: "space-between" }}>
           <span className="row">
@@ -269,7 +276,7 @@ export default async function ProjectPage({
         />
       </div>
 
-      <div className="card">
+      <div className="card" data-scroll-reveal="self">
         <h2>Who can comment</h2>
         <form action={updateAccessMode}>
           <input type="hidden" name="id" value={project.id} />
@@ -281,7 +288,7 @@ export default async function ProjectPage({
               defaultChecked={project.access_mode === "open"}
               style={{ width: "auto", marginRight: 8 }}
             />
-            <strong>Open</strong> — anyone with the prototype URL sees pins and
+            <strong>Open:</strong> anyone with the prototype URL sees pins and
             can comment
           </label>
           <label style={{ margin: "8px 0" }}>
@@ -292,7 +299,7 @@ export default async function ProjectPage({
               defaultChecked={project.access_mode === "review_link"}
               style={{ width: "auto", marginRight: 8 }}
             />
-            <strong>Review link only</strong> — the widget is invisible unless
+            <strong>Review link only:</strong> the widget is invisible unless
             the visitor opens your secret review link
           </label>
           <p>
@@ -309,7 +316,62 @@ export default async function ProjectPage({
         )}
       </div>
 
-      <div className="card">
+      <div className="card" data-scroll-reveal="self">
+        <h2>Where commenting is enabled</h2>
+        <p className="muted">
+          Match page paths only. Query strings and section links are ignored.
+        </p>
+        <form action={updateCommentingScope}>
+          <input type="hidden" name="id" value={project.id} />
+          <label style={{ margin: "8px 0" }}>
+            <input
+              type="radio"
+              name="commenting_scope"
+              value="all"
+              defaultChecked={project.commenting_scope === "all"}
+              style={{ width: "auto", marginRight: 8 }}
+            />
+            <strong>All pages</strong>
+          </label>
+          <label style={{ margin: "8px 0" }}>
+            <input
+              type="radio"
+              name="commenting_scope"
+              value="include"
+              defaultChecked={project.commenting_scope === "include"}
+              style={{ width: "auto", marginRight: 8 }}
+            />
+            <strong>Only these pages</strong>
+          </label>
+          <label style={{ margin: "8px 0" }}>
+            <input
+              type="radio"
+              name="commenting_scope"
+              value="exclude"
+              defaultChecked={project.commenting_scope === "exclude"}
+              style={{ width: "auto", marginRight: 8 }}
+            />
+            <strong>All pages except these</strong>
+          </label>
+          <label htmlFor="commenting-paths">Page paths</label>
+          <textarea
+            id="commenting-paths"
+            name="commenting_paths"
+            rows={4}
+            defaultValue={(project.commenting_paths ?? []).join("\n")}
+            placeholder={"/pricing\n/checkout/*\n/docs/install"}
+          />
+          <p className="muted">
+            One path per line. Add <code>/*</code> to include a page and all
+            pages below it.
+          </p>
+          <p>
+            <button type="submit">Save page rules</button>
+          </p>
+        </form>
+      </div>
+
+      <div className="card" data-scroll-reveal="self">
         <h2>Allowed domains</h2>
         <p className="muted">
           Comments are only accepted from these origins. Wildcards like{" "}
@@ -330,7 +392,7 @@ export default async function ProjectPage({
         </form>
       </div>
 
-      <div className="card">
+      <div className="card" data-scroll-reveal="self">
         <h2>Danger zone</h2>
         <p className="muted">
           Deleting a project permanently deletes all of its comments.

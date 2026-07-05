@@ -56,7 +56,7 @@ export function LoginForm({
       {error && (
         <p style={{ color: "var(--danger)" }}>
           {rateLimited
-            ? "Too many requests — please wait before resending."
+            ? "Too many requests. Please wait before resending."
             : error}
         </p>
       )}

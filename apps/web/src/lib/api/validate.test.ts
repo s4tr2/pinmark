@@ -60,7 +60,7 @@ describe("validateCommentInput", () => {
     const res = validateCommentInput(
       valid({ body: "<script>alert(1)</script>" })
     );
-    // validation accepts it as plain text — rendering layers (textContent,
+    // validation accepts it as plain text. Rendering layers (textContent,
     // React escaping) are responsible for inertness, checked in e2e
     expect(res.ok).toBe(true);
   });

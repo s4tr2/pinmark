@@ -91,7 +91,7 @@ function captureReviewToken(key: string): string | null {
  */
 function detectTheme(): "light" | "dark" {
   // Normalize ANY css color (rgb, oklch, lab, named…) by painting it on a
-  // 1x1 canvas and reading the pixel — string-parsing computed colors
+  // 1x1 canvas and reading the pixel. String-parsing computed colors
   // breaks on modern color spaces.
   const ctx = document.createElement("canvas").getContext("2d");
   const luminanceOf = (color: string): { lum: number; alpha: number } | null => {
@@ -146,6 +146,8 @@ function mount(cfg: PinmarkGlobal) {
   let comments: Comment[] = [];
   let route = currentRoute();
   let counts: Record<string, number> = {};
+  let pageEnabled = true;
+  let accessBlocked = false;
   let pinsVisible = true;
   let showResolved = false;
   let commentMode = false;
@@ -186,28 +188,51 @@ function mount(cfg: PinmarkGlobal) {
   }
   let lastSnapshot = "";
 
+  function sleepOnCurrentPage() {
+    pageEnabled = false;
+    comments = [];
+    counts = {};
+    popover = null;
+    menuOpen = false;
+    panelOpen = false;
+    commentMode = false;
+    host.remove();
+  }
+
   async function refresh() {
+    const requestedRoute = route;
     try {
-      const res = await api.fetchComments(route);
+      const res = await api.fetchComments(requestedRoute);
+      if (requestedRoute !== route) return;
+      pageEnabled = true;
+      if (!host.isConnected) document.body.appendChild(host);
       comments = res.comments;
       counts = res.counts;
       lastSnapshot = snapshotOf(comments, counts);
       renderAll();
       consumeGotoTarget(); // cross-route panel navigation lands here
     } catch (e) {
+      if (requestedRoute !== route) return;
       const code = (e as Error).message;
+      if (code === "page_not_enabled") {
+        // Page rules are path-based and may change again after SPA navigation.
+        // Stay fully dormant here, but keep navigation listeners alive.
+        sleepOnCurrentPage();
+        return;
+      }
       if (code === "review_token_required") {
         // Project is review-link gated and this visitor has no (valid) link:
         // stay completely dormant. Drop any stale token (e.g. regenerated).
         if (reviewToken) clearReviewToken(cfg.key);
+        accessBlocked = true;
         host.remove();
         return;
       }
       // Single namespaced warning; never throw into the host page (PRD §5.1)
       const hints: Record<string, string> = {
-        domain_not_allowed: `this page's domain (${location.hostname}) is not in the project's allowed domains — add it in the dashboard`,
-        invalid_key: "the data-pinmark key doesn't match any project — check the snippet against the dashboard",
-        rate_limited: "rate limit reached — try again shortly",
+        domain_not_allowed: `this page's domain (${location.hostname}) is not in the project's allowed domains. Add it in the dashboard`,
+        invalid_key: "the data-pinmark key doesn't match any project. Check the snippet against the dashboard",
+        rate_limited: "rate limit reached. Try again shortly",
       };
       console.warn("[pinmark] could not load comments:", hints[code] ?? code);
     }
@@ -250,7 +275,7 @@ function mount(cfg: PinmarkGlobal) {
       cached.x = rect.left + off.x * rect.width;
       cached.y = rect.top + off.y * rect.height;
     } else if (cached.el) {
-      // anchor element left the DOM since last resolve — degrade now,
+      // anchor element left the DOM since last resolve, so degrade now,
       // MutationObserver will attempt re-resolution
       const doc = document.documentElement;
       cached.el = null;
@@ -376,7 +401,7 @@ function mount(cfg: PinmarkGlobal) {
       const hint = el(
         "div",
         "mode-hint",
-        "Click to pin a comment, or drag to comment on an area — Esc to cancel"
+        "Click to pin a comment, or drag to comment on an area. Press Esc to cancel"
       );
       uiLayer.append(capture, hint);
       return;
@@ -523,7 +548,7 @@ function mount(cfg: PinmarkGlobal) {
   function pulsePin(id: string, animate = true) {
     const pin = comments.find((c) => c.id === id);
     if (pin?.resolved && !showResolved) {
-      showResolved = true; // target is resolved and hidden — reveal it
+      showResolved = true; // target is resolved and hidden, so reveal it
       renderAll();
     }
     const pos = pinPositions.get(id) ?? (pin?.anchor ? resolveAnchor(pin.anchor) : null);
@@ -711,7 +736,7 @@ function mount(cfg: PinmarkGlobal) {
       const meta = el("div", "meta");
       const author = el("b", "", c.author_name);
       meta.append(author, ` · ${relTime(c.created_at)}`);
-      const body = el("div", "body", c.body); // textContent — never innerHTML
+      const body = el("div", "body", c.body); // textContent, never innerHTML
       item.append(meta, body);
 
       // Guest self-edit/delete: own comments, first 5 minutes (PRD §6.1)
@@ -760,7 +785,7 @@ function mount(cfg: PinmarkGlobal) {
               renderPopover();
             }
           } catch {
-            /* window expired or network — leave as is */
+            /* window expired or network failure, so leave as is */
           }
         });
         const actionsRow = el("div", "meta");
@@ -828,10 +853,12 @@ function mount(cfg: PinmarkGlobal) {
   function friendlyError(code: string): string {
     if (code === "domain_not_allowed")
       return "This domain isn't on the project's allowlist.";
+    if (code === "page_not_enabled")
+      return "Commenting isn't enabled on this page.";
     if (code === "invalid_key") return "Invalid project key.";
     if (code.startsWith("fetch_failed") || code.startsWith("post_failed"))
-      return "Network error — try again.";
-    return "Couldn't post — try again.";
+      return "Network error. Try again.";
+    return "Couldn't post. Try again.";
   }
 
   function closePopover() {
@@ -1023,7 +1050,7 @@ function mount(cfg: PinmarkGlobal) {
         if (commentMode) commentMode = false;
         refresh(); // hides other routes' pins, fetches + resolves this route's
       } else {
-        renderAll(); // same route (e.g. hash-only) — still re-resolve anchors
+        renderAll(); // same route (e.g. hash-only), so re-resolve anchors
       }
     }, 300);
   }
@@ -1056,16 +1083,28 @@ function mount(cfg: PinmarkGlobal) {
   }
 
   async function pollTick() {
-    if (document.visibilityState !== "visible") return;
+    if (
+      document.visibilityState !== "visible" ||
+      !pageEnabled ||
+      accessBlocked
+    )
+      return;
+    const requestedRoute = route;
     try {
-      const res = await api.fetchComments(route);
+      const res = await api.fetchComments(requestedRoute);
+      if (requestedRoute !== route) return;
       const next = snapshotOf(res.comments, res.counts);
       if (next !== lastSnapshot) {
         lastSnapshot = next;
         applyRemoteUpdate(res);
       }
-    } catch {
-      /* transient failures are fine; next tick retries */
+    } catch (error) {
+      if (
+        requestedRoute === route &&
+        (error as Error).message === "page_not_enabled"
+      )
+        sleepOnCurrentPage();
+      // Other transient failures are fine; the next tick retries.
     }
   }
   // ±20% jitter so a crowd landing on the same page doesn't poll in lockstep

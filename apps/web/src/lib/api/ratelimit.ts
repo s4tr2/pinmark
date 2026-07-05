@@ -2,10 +2,10 @@ import type { NextRequest } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 // Split limiter (scale pass):
-// - READS are cheap, public, and dominated by widget polling — an
+// - READS are cheap, public, and dominated by widget polling. An
 //   approximate per-instance in-memory window is enough to stop abusive
 //   loops, and it keeps a DB write off every poll.
-// - WRITES are rare and need correctness across instances — they keep the
+// - WRITES are rare and need correctness across instances, so they keep the
 //   strict Postgres-backed counter.
 const READ = { max: 240, windowMs: 60_000 };
 const WRITE = { max: 20, windowSeconds: 3600 };

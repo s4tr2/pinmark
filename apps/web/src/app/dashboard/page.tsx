@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { createProject, signOut } from "@/lib/actions";
-import { BRAND_NAME } from "@/lib/config";
+import { createProject } from "@/lib/actions";
+import { ScrollReveal } from "../scroll-reveal";
+import { SiteNav } from "../site-nav";
 
 export default async function DashboardPage({
   searchParams,
@@ -21,22 +22,20 @@ export default async function DashboardPage({
     .order("created_at", { ascending: false });
 
   return (
-    <main>
-      <div className="row" style={{ justifyContent: "space-between" }}>
-        <h1>{BRAND_NAME} — Projects</h1>
-        <form action={signOut}>
-          <button className="secondary" type="submit">
-            Sign out
-          </button>
-        </form>
-      </div>
-      <p className="muted">{user.email}</p>
+    <main className="product-page" id="dashboard-page">
+      <ScrollReveal rootId="dashboard-page" />
+      <SiteNav active="dashboard" signedIn />
+      <header className="product-page-heading">
+        <p className="product-kicker">Workspace</p>
+        <h1>Projects</h1>
+        <p className="muted">{user.email}</p>
+      </header>
 
       {searchParams.error && (
         <p style={{ color: "var(--danger)" }}>{searchParams.error}</p>
       )}
 
-      <div className="card">
+      <section className="card" data-scroll-reveal="self">
         <h2>New project</h2>
         <form action={createProject}>
           <label htmlFor="name">Project name</label>
@@ -53,22 +52,27 @@ export default async function DashboardPage({
             <button type="submit">Create project</button>
           </p>
         </form>
-      </div>
+      </section>
 
-      {(projects ?? []).map((p) => (
-        <div className="card" key={p.id}>
-          <div className="row" style={{ justifyContent: "space-between" }}>
-            <Link href={`/p/${p.id}`}>
-              <strong>{p.name}</strong>
-            </Link>
-            <span className="muted">{p.public_key}</span>
+      <section className="product-project-list" data-scroll-reveal>
+        {(projects ?? []).map((p) => (
+          <article className="card product-project-card" key={p.id}>
+            <div className="row" style={{ justifyContent: "space-between" }}>
+              <Link href={`/p/${p.id}`}>
+                <strong>{p.name}</strong>
+              </Link>
+              <span className="muted">{p.public_key}</span>
+            </div>
+          </article>
+        ))}
+
+        {(projects ?? []).length === 0 && (
+          <div className="card product-empty-state">
+            <strong>No projects yet.</strong>
+            <p className="muted">Create one above to get your first snippet.</p>
           </div>
-        </div>
-      ))}
-
-      {(projects ?? []).length === 0 && (
-        <p className="muted">No projects yet — create one above.</p>
-      )}
+        )}
+      </section>
     </main>
   );
 }
