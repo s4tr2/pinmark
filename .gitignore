@@ -24,3 +24,11 @@ tsconfig.tsbuildinfo
 # widget build outputs (rebuilt from packages/widget)
 apps/web/public/w.js
 apps/web/public/widget.core.js
+
+# test artifacts
+test-results/
+playwright-report/
+
+# local Claude Code agent/skill installs (not project source)
+.agents/
+skills-lock.json

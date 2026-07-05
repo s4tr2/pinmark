@@ -2,14 +2,14 @@
 
 Figma-style commenting for any coded prototype. Paste one script tag into a deployed prototype (Vercel, Lovable, Replit, anywhere) and anyone with the link can pin comments directly on the UI — no account, no install.
 
-> **Status: early development.** Milestone 1 (skeleton) done: monorepo, schema + RLS, web app with magic-link auth and project/snippet management. The widget itself lands in Milestone 2+. See the PRD for the full plan.
+> **Status: live.** Widget (drag-to-pin, region comments, resolve/reply, live updates), dashboard (projects, moderation, md/docx export), access control (open or review-link only), email notifications, and DB-backed rate limiting are all shipped. See [PRODUCT.md](PRODUCT.md) and [TESTING.md](TESTING.md) for what's covered.
 
 ## Layout
 
 ```
-apps/web/           Next.js (App Router): auth, dashboard, API routes
-packages/widget/    Vanilla TS widget (M2+)
-supabase/           Migrations (schema + RLS) and edge functions
+apps/web/           Next.js (App Router): auth, dashboard, API routes, landing/docs
+packages/widget/    Vanilla TS widget (loader + core), shadow DOM, no framework
+supabase/           Migrations (schema + RLS)
 ```
 
 ## Local development
@@ -28,6 +28,16 @@ Magic-link emails in local dev are captured by Inbucket at http://127.0.0.1:5432
 
 No Docker? Create a free [Supabase cloud](https://supabase.com) project instead, run the SQL in `supabase/migrations/` against it, and point `.env.local` at the project's URL and keys.
 
+## Self-hosting
+
+Pinmark is designed to run on your own infrastructure: bring your own Supabase
+project (cloud free tier, or [self-hosted Supabase](https://supabase.com/docs/guides/self-hosting) via its own docker-compose) and deploy `apps/web`
+anywhere Node runs — Vercel, Fly, Render, a VPS. See [DEPLOY.md](DEPLOY.md)
+for the full walkthrough (env vars, auth redirect URLs, smoke test). A
+turnkey docker-compose for the whole stack is on the roadmap but not built
+yet — today, self-hosting means running the two pieces (your Supabase, your
+Next.js deploy) yourself.
+
 ## Testing
 
 ```sh
@@ -45,4 +55,6 @@ Reviewers never create accounts. Server-side, a guest comment stores only a disp
 
 ## License
 
-MIT
+[MIT](LICENSE).
+
+See [SECURITY.md](SECURITY.md) to report a vulnerability.

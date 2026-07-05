@@ -41,6 +41,11 @@ e2e/                Playwright widget tests
 6. **Secrets stay in `.env.local`** (gitignored). `.env.example` is a
    template — placeholder values only.
 
+## License
+
+By contributing, you agree your changes are licensed under the project's
+[MIT license](README.md#license).
+
 ## Checks before pushing
 
 ```sh

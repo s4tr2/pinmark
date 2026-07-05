@@ -1,14 +1,37 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { BRAND_NAME, CDN_URL } from "@/lib/config";
+import { CopyPrompt } from "./copy-prompt";
+import { DocsReveal } from "./docs-reveal";
+import { SiteNav } from "../site-nav";
 
 export const metadata: Metadata = {
-  title: `Install guide — ${BRAND_NAME}`,
+  title: `Install guide · ${BRAND_NAME}`,
   description:
     "Add Pinmark commenting to prototypes on Lovable, Webflow, Framer, Vercel, Replit, Netlify and any other platform.",
 };
 
 const SNIPPET = `<script async src="${CDN_URL}/w.js" data-pinmark="pk_live_YOUR_KEY"></script>`;
+
+const VERCEL_PROMPT = `Install Pinmark in this project so it loads on every page.
+
+1. Detect how this app manages its document <head>.
+2. For Next.js App Router, add the script in app/layout.tsx. For Pages Router, add it in pages/_document.tsx. For another framework, use its shared document or root layout.
+3. Add the script exactly once and keep async and data-pinmark unchanged.
+4. Do not change unrelated code.
+
+Use this script:
+${SNIPPET}
+
+Afterward, tell me which file you changed.`;
+
+const HTML_PROMPT = `Install Pinmark on every page of this site.
+
+Add the script below exactly once to the shared document <head>, immediately before </head>. If the site uses templates or layouts, choose the root layout that renders every page. Keep async and data-pinmark unchanged, and do not change unrelated code.
+
+${SNIPPET}
+
+Afterward, tell me which file you changed.`;
 
 function Snippet({ children }: { children?: string }) {
   return <code className="snippet">{children ?? SNIPPET}</code>;
@@ -18,70 +41,208 @@ function PaidPlanTag({ note }: { note: string }) {
   return <span className="tag">{note}</span>;
 }
 
-const platforms = [
-  { id: "nextjs", label: "Next.js / Vercel" },
-  { id: "lovable", label: "Lovable" },
-  { id: "webflow", label: "Webflow" },
-  { id: "framer", label: "Framer" },
-  { id: "replit", label: "Replit" },
-  { id: "bolt", label: "Bolt / v0" },
-  { id: "netlify", label: "Netlify" },
-  { id: "html", label: "Plain HTML" },
-  { id: "wix-squarespace", label: "Wix / Squarespace" },
-  { id: "troubleshooting", label: "Troubleshooting" },
-];
+type Guide = {
+  id: string;
+  label: string;
+  eyebrow: string;
+  domains?: readonly string[];
+  glyph?: string;
+};
+
+const GUIDES = {
+  nextjs: {
+    id: "nextjs",
+    label: "Next.js / Vercel",
+    eyebrow: "Framework + hosting",
+    domains: ["nextjs.org", "vercel.com"],
+  },
+  lovable: {
+    id: "lovable",
+    label: "Lovable",
+    eyebrow: "AI app builder",
+    domains: ["lovable.dev"],
+  },
+  webflow: {
+    id: "webflow",
+    label: "Webflow",
+    eyebrow: "Site builder",
+    domains: ["webflow.com"],
+  },
+  framer: {
+    id: "framer",
+    label: "Framer",
+    eyebrow: "Site builder",
+    domains: ["framer.com"],
+  },
+  replit: {
+    id: "replit",
+    label: "Replit",
+    eyebrow: "Cloud IDE",
+    domains: ["replit.com"],
+  },
+  bolt: {
+    id: "bolt",
+    label: "Bolt / v0",
+    eyebrow: "AI app builders",
+    domains: ["bolt.new", "v0.dev"],
+  },
+  netlify: {
+    id: "netlify",
+    label: "Netlify",
+    eyebrow: "Hosting",
+    domains: ["netlify.com"],
+  },
+  html: {
+    id: "html",
+    label: "Plain HTML",
+    eyebrow: "Universal install",
+    glyph: "</>",
+  },
+  wixSquarespace: {
+    id: "wix-squarespace",
+    label: "Wix / Squarespace",
+    eyebrow: "Site builders",
+    domains: ["wix.com", "squarespace.com"],
+  },
+  troubleshooting: {
+    id: "troubleshooting",
+    label: "Troubleshooting",
+    eyebrow: "Quick diagnostics",
+    glyph: "?",
+  },
+} as const satisfies Record<string, Guide>;
+
+const guides = Object.values(GUIDES);
+
+function GuideLogo({ guide }: { guide: Guide }) {
+  return (
+    <span
+      className={`guide-logo${guide.domains?.length === 2 ? " guide-logo-pair" : ""}`}
+      aria-hidden="true"
+    >
+      {guide.domains?.map((domain) => (
+        <img
+          key={domain}
+          src={`https://icons.duckduckgo.com/ip3/${domain}.ico`}
+          alt=""
+          width={22}
+          height={22}
+          loading="lazy"
+          referrerPolicy="no-referrer"
+        />
+      ))}
+      {guide.glyph && <span className="guide-logo-glyph">{guide.glyph}</span>}
+    </span>
+  );
+}
+
+function GuideHeader({
+  guide,
+  note,
+}: {
+  guide: Guide;
+  note?: string;
+}) {
+  return (
+    <header className="doc-section-header">
+      <GuideLogo guide={guide} />
+      <div>
+        <p className="doc-section-eyebrow">{guide.eyebrow}</p>
+        <div className="doc-section-title">
+          <h2>{guide.label}</h2>
+          {note && <PaidPlanTag note={note} />}
+        </div>
+      </div>
+    </header>
+  );
+}
 
 export default function DocsPage() {
   return (
-    <main>
-      <nav className="crumbs">
-        <Link href="/">{BRAND_NAME}</Link> / Install guide ·{" "}
-        <Link href="/dashboard">Dashboard</Link>
-      </nav>
+    <main className="docs" id="install-guide">
+      <DocsReveal />
 
-      <h1>Install {BRAND_NAME} on your prototype</h1>
-      <p className="muted">
-        Three steps on every platform; only where you paste differs.
-      </p>
+      <SiteNav active="docs" />
 
-      <ol>
+      <header className="docs-hero" data-doc-reveal>
+        <p className="docs-kicker">One script. Any prototype.</p>
+        <h1>Install {BRAND_NAME} on your prototype</h1>
+        <p className="muted">
+          The setup is always the same. Choose your platform to see exactly
+          where the snippet belongs.
+        </p>
+      </header>
+
+      <ol className="docs-steps" data-doc-reveal>
         <li>
-          <Link href="/dashboard">Create a project</Link> and copy your
-          snippet:
-          <Snippet />
+          <span className="docs-step-number">01</span>
+          <div>
+            <strong>Create a project.</strong>{" "}
+            <Link href="/dashboard">Open the dashboard</Link> and copy your
+            snippet.
+            <Snippet />
+          </div>
         </li>
         <li>
-          Add your prototype&apos;s domain (e.g.{" "}
-          <code>myproto.vercel.app</code>) to the project&apos;s{" "}
-          <em>Allowed domains</em>. Pasting a full URL works, the domain is
-          extracted. Include <code>localhost</code> for local testing.
+          <span className="docs-step-number">02</span>
+          <div>
+            <strong>Allow the domain.</strong> Add your prototype&apos;s
+            domain (for example <code>myproto.vercel.app</code>) to{" "}
+            <em>Allowed domains</em>. Include <code>localhost</code> for local
+            testing.
+          </div>
         </li>
         <li>
-          Paste the snippet into your prototype&apos;s{" "}
-          <code>&lt;head&gt;</code> and publish. The comment bubble appears
-          bottom-right; press <kbd>C</kbd> to comment, or drag to comment on
-          an area.
+          <span className="docs-step-number">03</span>
+          <div>
+            <strong>Paste and publish.</strong> Add the snippet to the{" "}
+            <code>&lt;head&gt;</code>. The comment bubble appears
+            bottom-right; press <kbd>C</kbd> or drag to comment on an area.
+          </div>
         </li>
       </ol>
 
-      <p className="muted" style={{ marginTop: "1.5rem" }}>
-        {platforms.map((p, i) => (
-          <span key={p.id}>
-            {i > 0 && " · "}
-            <a href={`#${p.id}`}>{p.label}</a>
-          </span>
-        ))}
-      </p>
+      <nav
+        className="guide-index"
+        id="platform-guides"
+        aria-labelledby="guide-index-title"
+        data-doc-reveal
+      >
+        <div className="guide-index-heading">
+          <div>
+            <p className="docs-kicker">Platform guides</p>
+            <h2 id="guide-index-title">Choose where you&apos;re building</h2>
+          </div>
+          <span>{guides.length} guides</span>
+        </div>
+        <ul className="guide-index-grid">
+          {guides.map((guide) => (
+            <li key={guide.id}>
+              <a className="guide-index-link" href={`#${guide.id}`}>
+                <GuideLogo guide={guide} />
+                <span>
+                  <strong>{guide.label}</strong>
+                  <small>{guide.eyebrow}</small>
+                </span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
 
-      <section className="doc-section" id="nextjs">
-        <h2>Next.js / Vercel</h2>
+      <section className="doc-section" id="nextjs" data-doc-reveal>
+        <GuideHeader guide={GUIDES.nextjs} />
         <p>
-          <strong>App Router</strong> — in <code>app/layout.tsx</code>, add
+          Using an AI code assistant? Give it the project-aware prompt below:
+        </p>
+        <CopyPrompt label="Prompt for your coding agent" prompt={VERCEL_PROMPT} />
+        <p>
+          <strong>App Router:</strong> in <code>app/layout.tsx</code>, add
           the script inside <code>&lt;head&gt;</code>:
         </p>
         <Snippet>{`<head>\n  ${SNIPPET}\n</head>`}</Snippet>
         <p>
-          <strong>Pages Router</strong> — add it inside{" "}
+          <strong>Pages Router:</strong> add it inside{" "}
           <code>&lt;Head&gt;</code> in <code>pages/_document.tsx</code>.
         </p>
         <p className="muted">
@@ -91,8 +252,8 @@ export default function DocsPage() {
         </p>
       </section>
 
-      <section className="doc-section" id="lovable">
-        <h2>Lovable</h2>
+      <section className="doc-section" id="lovable" data-doc-reveal>
+        <GuideHeader guide={GUIDES.lovable} />
         <p>Fastest path is asking the AI:</p>
         <Snippet>{`Add this script tag to the <head> of index.html and change nothing else:\n${SNIPPET}`}</Snippet>
         <p>
@@ -105,10 +266,11 @@ export default function DocsPage() {
         </p>
       </section>
 
-      <section className="doc-section" id="webflow">
-        <h2>
-          Webflow <PaidPlanTag note="paid site plan required" />
-        </h2>
+      <section className="doc-section" id="webflow" data-doc-reveal>
+        <GuideHeader
+          guide={GUIDES.webflow}
+          note="paid site plan required"
+        />
         <ol>
           <li>
             Site settings → <strong>Custom Code</strong>
@@ -126,10 +288,8 @@ export default function DocsPage() {
         </p>
       </section>
 
-      <section className="doc-section" id="framer">
-        <h2>
-          Framer <PaidPlanTag note="paid site plan required" />
-        </h2>
+      <section className="doc-section" id="framer" data-doc-reveal>
+        <GuideHeader guide={GUIDES.framer} note="paid site plan required" />
         <ol>
           <li>
             Site Settings → <strong>General</strong> →{" "}
@@ -146,8 +306,8 @@ export default function DocsPage() {
         </p>
       </section>
 
-      <section className="doc-section" id="replit">
-        <h2>Replit</h2>
+      <section className="doc-section" id="replit" data-doc-reveal>
+        <GuideHeader guide={GUIDES.replit} />
         <ol>
           <li>
             Edit your app&apos;s <code>index.html</code> (project root, or{" "}
@@ -164,8 +324,8 @@ export default function DocsPage() {
         </p>
       </section>
 
-      <section className="doc-section" id="bolt">
-        <h2>Bolt / v0</h2>
+      <section className="doc-section" id="bolt" data-doc-reveal>
+        <GuideHeader guide={GUIDES.bolt} />
         <p>Same prompt pattern as Lovable:</p>
         <Snippet>{`Add this script tag to the document <head> and change nothing else:\n${SNIPPET}`}</Snippet>
         <p className="muted">
@@ -175,8 +335,8 @@ export default function DocsPage() {
         </p>
       </section>
 
-      <section className="doc-section" id="netlify">
-        <h2>Netlify</h2>
+      <section className="doc-section" id="netlify" data-doc-reveal>
+        <GuideHeader guide={GUIDES.netlify} />
         <p>
           Paste into your site&apos;s HTML like any static site, or inject
           without touching code: Site configuration →{" "}
@@ -190,8 +350,13 @@ export default function DocsPage() {
         </p>
       </section>
 
-      <section className="doc-section" id="html">
-        <h2>Plain HTML / anything else</h2>
+      <section className="doc-section" id="html" data-doc-reveal>
+        <GuideHeader guide={GUIDES.html} />
+        <p>
+          For a custom-coded site, this prompt finds the shared document and
+          installs Pinmark once:
+        </p>
+        <CopyPrompt label="Prompt for your coding agent" prompt={HTML_PROMPT} />
         <p>
           Paste anywhere in the page, before <code>&lt;/head&gt;</code> by
           convention. It loads async and never blocks or breaks the host page.
@@ -204,16 +369,17 @@ export default function DocsPage() {
         </p>
       </section>
 
-      <section className="doc-section" id="wix-squarespace">
-        <h2>
-          Wix / Squarespace <PaidPlanTag note="paid plans required" />
-        </h2>
+      <section className="doc-section" id="wix-squarespace" data-doc-reveal>
+        <GuideHeader
+          guide={GUIDES.wixSquarespace}
+          note="paid plans required"
+        />
         <p>
-          <strong>Wix</strong> — Settings → <strong>Custom Code</strong> →
+          <strong>Wix:</strong> Settings → <strong>Custom Code</strong> →
           Add Custom Code → apply to All Pages, load in Head.
         </p>
         <p>
-          <strong>Squarespace</strong> — Settings → Advanced →{" "}
+          <strong>Squarespace:</strong> Settings → Advanced →{" "}
           <strong>Code Injection</strong> → Header field.
         </p>
         <p className="muted">
@@ -221,29 +387,72 @@ export default function DocsPage() {
         </p>
       </section>
 
-      <section className="doc-section" id="troubleshooting">
-        <h2>Troubleshooting</h2>
+      <section className="doc-section" id="self-hosting" data-doc-reveal>
+        <GuideHeader
+          guide={{
+            id: "self-hosting",
+            label: "Self-hosting",
+            eyebrow: "Own every layer",
+            glyph: "OSS",
+          }}
+        />
+        <p>
+          Pinmark is open source under the{" "}
+          <a
+            href="https://github.com/s4tr2/pinmark/blob/main/LICENSE"
+            target="_blank"
+            rel="noreferrer"
+          >
+            MIT license
+          </a>
+          .
+        </p>
+        <p className="muted">
+          Running your own instance means bringing your own Supabase project
+          (cloud free tier, or{" "}
+          <a
+            href="https://supabase.com/docs/guides/self-hosting"
+            target="_blank"
+            rel="noreferrer"
+          >
+            self-hosted Supabase
+          </a>
+          ) and deploying <code>apps/web</code> anywhere Node runs. Full steps
+          — env vars, auth redirect URLs, a smoke test — are in{" "}
+          <a
+            href="https://github.com/s4tr2/pinmark/blob/main/DEPLOY.md"
+            target="_blank"
+            rel="noreferrer"
+          >
+            DEPLOY.md
+          </a>
+          .
+        </p>
+      </section>
+
+      <section className="doc-section" id="troubleshooting" data-doc-reveal>
+        <GuideHeader guide={GUIDES.troubleshooting} />
         <p>
           <strong>No bubble?</strong> Open the browser console and find the{" "}
           <code>[pinmark]</code> line; it names the exact problem:
         </p>
         <ul>
           <li>
-            <em>domain not in allowed domains</em> — add the page&apos;s
+            <em>domain not in allowed domains</em>: add the page&apos;s
             domain in the dashboard and reload.
           </li>
           <li>
-            <em>key doesn&apos;t match any project</em> — re-copy the snippet;
+            <em>key doesn&apos;t match any project</em>: re-copy the snippet;
             the key may have been regenerated.
           </li>
           <li>
-            No <code>[pinmark]</code> line at all — the script isn&apos;t on
+            No <code>[pinmark]</code> line at all: the script isn&apos;t on
             the page. View source and search for <code>w.js</code>; if
             missing, the platform didn&apos;t inject it (check paid-plan
             requirements above, and that you published after adding it).
           </li>
           <li>
-            Project in <em>review link only</em> mode — the widget is
+            Project in <em>review link only</em> mode: the widget is
             deliberately invisible without the secret link. Open your review
             link once in that browser, or switch the project to Open.
           </li>
