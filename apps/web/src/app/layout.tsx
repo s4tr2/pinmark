@@ -27,13 +27,6 @@ export default function RootLayout({
       lang="en"
       className={`${GeistSans.variable} ${youngSerif.variable}`}
     >
-      <head>
-        <script
-          async
-          src="https://www.pinmark.dev/w.js"
-          data-pinmark="pk_live_mGZF86IMlZRs6AocPZiF7umB"
-        />
-      </head>
       <body>{children}</body>
     </html>
   );
