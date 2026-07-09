@@ -283,6 +283,22 @@ export const CSS = `
   filter: none;
   transform: none;
 }
+.popover .actions button.is-loading::after { display: none; }
+.spinner {
+  display: inline-block;
+  width: 11px;
+  height: 11px;
+  margin-right: 6px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  opacity: 0.8;
+  vertical-align: -1px;
+  animation: pinmark-spin 0.6s linear infinite;
+}
+@keyframes pinmark-spin {
+  to { transform: rotate(360deg); }
+}
 
 .comment { margin-bottom: 10px; }
 .comment .meta {
@@ -310,6 +326,7 @@ export const CSS = `
   text-underline-offset: 2px;
 }
 .own-action:hover { color: var(--fg); }
+.own-action.is-loading { pointer-events: none; opacity: 0.6; }
 
 /* ---- all-threads panel ---- */
 .panel {

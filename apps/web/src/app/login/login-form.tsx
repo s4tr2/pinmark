@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { sendMagicLink } from "@/lib/actions";
+import { Spinner } from "../spinner";
 
 function SubmitButton({ cooldown, sent }: { cooldown: number; sent: boolean }) {
   const { pending } = useFormStatus();
@@ -15,6 +16,7 @@ function SubmitButton({ cooldown, sent }: { cooldown: number; sent: boolean }) {
         : "Send magic link";
   return (
     <button type="submit" disabled={pending || cooldown > 0}>
+      {pending && <Spinner />}
       {label}
     </button>
   );

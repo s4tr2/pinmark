@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createProject } from "@/lib/actions";
 import { ScrollReveal } from "../scroll-reveal";
 import { SiteNav } from "../site-nav";
+import { SubmitButton } from "../submit-button";
 
 export default async function DashboardPage({
   searchParams,
@@ -49,7 +50,7 @@ export default async function DashboardPage({
             placeholder="myproto.vercel.app, *.lovable.app, localhost"
           />
           <p>
-            <button type="submit">Create project</button>
+            <SubmitButton>Create project</SubmitButton>
           </p>
         </form>
       </section>

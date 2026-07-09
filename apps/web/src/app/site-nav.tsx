@@ -2,6 +2,7 @@ import Link from "next/link";
 import { signOut } from "@/lib/actions";
 import { BRAND_NAME, SELF_HOSTED } from "@/lib/config";
 import { PinmarkLogo } from "./pinmark-logo";
+import { SubmitButton } from "./submit-button";
 
 type NavPage = "home" | "playground" | "docs" | "login" | "dashboard";
 
@@ -66,9 +67,7 @@ export function SiteNav({
               Projects
             </Link>
             <form action={signOut}>
-              <button className="nav-link" type="submit">
-                Sign out
-              </button>
+              <SubmitButton className="nav-link">Sign out</SubmitButton>
             </form>
           </>
         ) : (

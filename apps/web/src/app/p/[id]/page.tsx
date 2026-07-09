@@ -16,6 +16,7 @@ import {
 import { snippetFor } from "@/lib/config";
 import { ScrollReveal } from "../../scroll-reveal";
 import { SiteNav } from "../../site-nav";
+import { SubmitButton } from "../../submit-button";
 import { CopyButton } from "./copy-button";
 
 function ReviewLink({
@@ -43,9 +44,9 @@ function ReviewLink({
         <CopyButton text={link} />
         <form action={regenerateReviewToken}>
           <input type="hidden" name="id" value={projectId} />
-          <button className="secondary" type="submit">
+          <SubmitButton className="secondary">
             Regenerate (revokes all shared links)
-          </button>
+          </SubmitButton>
         </form>
       </p>
     </>
@@ -123,12 +124,12 @@ function Threads({
                     <form action={deleteComment} style={{ display: "inline" }}>
                       <input type="hidden" name="comment_id" value={reply.id} />
                       <input type="hidden" name="project_id" value={projectId} />
-                      <button
+                      <SubmitButton
                         className="secondary"
                         style={{ fontSize: "0.75rem", padding: "2px 8px" }}
                       >
                         Delete
-                      </button>
+                      </SubmitButton>
                     </form>
                   </div>
                 ))}
@@ -141,19 +142,19 @@ function Threads({
                     name="resolved"
                     value={pin.resolved ? "false" : "true"}
                   />
-                  <button className="secondary" style={{ fontSize: "0.8125rem" }}>
+                  <SubmitButton className="secondary" style={{ fontSize: "0.8125rem" }}>
                     {pin.resolved ? "Reopen" : "Resolve"}
-                  </button>
+                  </SubmitButton>
                 </form>
                 <form action={deleteComment}>
                   <input type="hidden" name="comment_id" value={pin.id} />
                   <input type="hidden" name="project_id" value={projectId} />
-                  <button
+                  <SubmitButton
                     className="secondary"
                     style={{ fontSize: "0.8125rem", color: "var(--danger)" }}
                   >
                     Delete thread
-                  </button>
+                  </SubmitButton>
                 </form>
               </div>
               <form action={replyAsOwner} className="row" style={{ marginTop: 8 }}>
@@ -161,9 +162,7 @@ function Threads({
                 <input type="hidden" name="parent_id" value={pin.id} />
                 <input type="hidden" name="route" value={pin.route} />
                 <input name="body" placeholder="Reply…" style={{ flex: 1 }} />
-                <button type="submit" style={{ fontSize: "0.8125rem" }}>
-                  Reply
-                </button>
+                <SubmitButton style={{ fontSize: "0.8125rem" }}>Reply</SubmitButton>
               </form>
             </div>
           ))}
@@ -233,9 +232,9 @@ export default async function ProjectPage({
           <CopyButton text={snippet} />
           <form action={regeneratePublicKey}>
             <input type="hidden" name="id" value={project.id} />
-            <button className="secondary" type="submit">
+            <SubmitButton className="secondary">
               Regenerate key (kill switch)
-            </button>
+            </SubmitButton>
           </form>
         </p>
         <p className="muted">
@@ -263,9 +262,9 @@ export default async function ProjectPage({
             (comments ?? []).some((c) => !c.parent_id && !c.resolved) && (
               <form action={resolveAllThreads}>
                 <input type="hidden" name="project_id" value={project.id} />
-                <button className="secondary" style={{ fontSize: "0.8125rem" }}>
+                <SubmitButton className="secondary" style={{ fontSize: "0.8125rem" }}>
                   Resolve all open threads
-                </button>
+                </SubmitButton>
               </form>
             )}
         </p>
@@ -303,7 +302,7 @@ export default async function ProjectPage({
             the visitor opens your secret review link
           </label>
           <p>
-            <button type="submit">Save access mode</button>
+            <SubmitButton>Save access mode</SubmitButton>
           </p>
         </form>
 
@@ -366,7 +365,7 @@ export default async function ProjectPage({
             pages below it.
           </p>
           <p>
-            <button type="submit">Save page rules</button>
+            <SubmitButton>Save page rules</SubmitButton>
           </p>
         </form>
       </div>
@@ -387,7 +386,7 @@ export default async function ProjectPage({
             placeholder={"myproto.vercel.app\n*.lovable.app\nlocalhost"}
           />
           <p>
-            <button type="submit">Save domains</button>
+            <SubmitButton>Save domains</SubmitButton>
           </p>
         </form>
       </div>
@@ -399,12 +398,11 @@ export default async function ProjectPage({
         </p>
         <form action={deleteProject}>
           <input type="hidden" name="id" value={project.id} />
-          <button
-            type="submit"
+          <SubmitButton
             style={{ background: "var(--danger)", borderColor: "var(--danger)" }}
           >
             Delete project
-          </button>
+          </SubmitButton>
         </form>
       </div>
     </main>

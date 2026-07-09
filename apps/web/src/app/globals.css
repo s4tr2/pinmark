@@ -234,6 +234,25 @@ button:disabled {
   transform: none;
 }
 
+.spinner {
+  display: inline-block;
+  width: 0.9em;
+  height: 0.9em;
+  margin-right: 0.5em;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  opacity: 0.8;
+  vertical-align: -0.15em;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 /* arrow only on the landing CTA */
 .hero-cta button::after {
   content: "→";

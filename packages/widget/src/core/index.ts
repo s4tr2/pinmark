@@ -62,6 +62,15 @@ function el<K extends keyof HTMLElementTagNameMap>(
   return node;
 }
 
+/** Toggles a spinner + disabled/is-loading state on a button or action link. */
+function setPending(target: HTMLElement, pending: boolean, label: string) {
+  if ("disabled" in target) (target as HTMLButtonElement).disabled = pending;
+  target.classList.toggle("is-loading", pending);
+  target.textContent = "";
+  if (pending) target.appendChild(el("span", "spinner"));
+  target.append(label);
+}
+
 /**
  * Review-link capture: a share link like https://proto.app/#pinmark=rt_xxx
  * unlocks review mode in this browser. The token is stored per project key
@@ -695,7 +704,7 @@ function mount(cfg: PinmarkGlobal) {
         errorLine.style.display = "";
         return;
       }
-      post.disabled = true;
+      setPending(post, true, "Post");
       try {
         const created = await api.postComment({
           route,
@@ -715,7 +724,7 @@ function mount(cfg: PinmarkGlobal) {
         popover = null;
         setCommentMode(false); // auto-exit after posting (PRD §4.2)
       } catch (e) {
-        post.disabled = false;
+        setPending(post, false, "Post");
         errorLine.textContent = friendlyError((e as Error).message);
         errorLine.style.display = "";
       }
@@ -759,18 +768,20 @@ function mount(cfg: PinmarkGlobal) {
           save.addEventListener("click", async () => {
             const next = ta.value.trim();
             if (!next) return;
-            save.disabled = true;
+            setPending(save, true, "Save");
             try {
               await api.editComment(c.id, getToken(), next);
               c.body = next;
               lastSnapshot = snapshotOf(comments, counts);
               renderPopover();
             } catch {
-              save.disabled = false;
+              setPending(save, false, "Save");
             }
           });
         });
         del.addEventListener("click", async () => {
+          if (del.classList.contains("is-loading")) return;
+          setPending(del, true, "Delete");
           try {
             await api.deleteComment(c.id, getToken());
             comments = comments.filter(
@@ -786,6 +797,7 @@ function mount(cfg: PinmarkGlobal) {
             }
           } catch {
             /* window expired or network failure, so leave as is */
+            setPending(del, false, "Delete");
           }
         });
         const actionsRow = el("div", "meta");
@@ -827,7 +839,7 @@ function mount(cfg: PinmarkGlobal) {
         errorLine.style.display = "";
         return;
       }
-      send.disabled = true;
+      setPending(send, true, "Reply");
       try {
         const created = await api.postComment({
           route,
@@ -843,7 +855,7 @@ function mount(cfg: PinmarkGlobal) {
         lastSnapshot = snapshotOf(comments, counts);
         renderPopover(); // re-render thread with new reply
       } catch (e) {
-        send.disabled = false;
+        setPending(send, false, "Reply");
         errorLine.textContent = friendlyError((e as Error).message);
         errorLine.style.display = "";
       }
